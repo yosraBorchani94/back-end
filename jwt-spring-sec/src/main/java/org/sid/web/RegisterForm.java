@@ -3,7 +3,8 @@ package org.sid.web;
 import org.sid.entities.AppRole;
 
 public class RegisterForm {
-
+    
+	private String id;
 	private String username;
 	private AppRole role;
 	private String password;
@@ -33,6 +34,13 @@ public class RegisterForm {
 	public void setRepassword(String repassword) {
 		this.repassword = repassword;
 	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	
 	
 	
 }

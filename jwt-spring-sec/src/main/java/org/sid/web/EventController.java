@@ -8,14 +8,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.sid.dao.AcceptedUserRepository;
 import org.sid.dao.EventRepository;
 import org.sid.dao.UserRepository;
 import org.sid.entities.AcceptedUsers;
 import org.sid.entities.AppUser;
 import org.sid.entities.Event;
-import org.sid.entities.Task;
 import org.sid.mail.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
@@ -28,91 +26,80 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @CrossOrigin("*")
 public class EventController {
-	
-	
+
 	@Autowired
 	private EventRepository eventRepository;
-	
+
 	@Autowired
 	private MailService mailService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private AcceptedUserRepository acceptedUserRepository;
-	
+
+	// send the first notification to all users
 	@PostMapping("/event")
-	public void save(@RequestBody Event event){
+	public void save(@RequestBody Event event) {
 		eventRepository.save(event);
 		List<AppUser> listUsers = userRepository.findAll();
-		for (AppUser user:listUsers) {
-			 try {
-				 //mailService.sendNotificationEvent(user.getUsername(),event);
-				} catch (MailException e) {
-					System.out.println(e);
-				}
+		for (AppUser user : listUsers) {
+			try {
+				mailService.sendNotificationEvent(user.getUsername(), event);
+			} catch (MailException e) {
+				System.out.println(e);
+			}
 		}
 	}
-	
+
+	// send the second notification to accepted event with specific users
+
 	@GetMapping("/eventNotification")
-	public String eventNotification () throws ParseException{
+	public void eventNotification() throws ParseException {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date Todaydate = new Date();
-		 List<Event> listEvents = eventRepository.findAll();
-		 for (Event event:listEvents) {
-			    StringTokenizer st = new StringTokenizer(event.getStartDate());  
-			    String EventDateString = st.nextToken("T");
-			    Date eventdate = dateFormat.parse(EventDateString);		
-			    Calendar c = Calendar.getInstance(); 
-			    c.setTime(Todaydate); 
-			    c.add(Calendar.DATE, 1);
-			    Date tomorrow = c.getTime();
-				//System.out.println("EventDateString: "+EventDateString);
-				//System.out.println("yesterdayEvent: " + dateFormat.format(yesterdayEvent));
-			    if ((EventDateString.equals(dateFormat.format(Todaydate))) ||(EventDateString.equals(dateFormat.format(tomorrow)))) {
-					List<AcceptedUsers> listAcceptedUsers = acceptedUserRepository.findAll();
-					for (AcceptedUsers accepteduser:listAcceptedUsers) {
-						try {
-							mailService.sendReminderNotificationEvent(accepteduser.getUsername(),event.getId());
-							} catch (MailException e) {
-								System.out.println(e);
-							}
-					}
-					return "send notification";
+		Calendar c = Calendar.getInstance();
+		c.setTime(Todaydate);
+		c.add(Calendar.DATE, 1);
+		Date tomorrow = c.getTime();
+		List<AcceptedUsers> listAcceptedUsers = acceptedUserRepository.findAll();
+		if (listAcceptedUsers.size() > 0) {
+			for (AcceptedUsers accepteduser : listAcceptedUsers) {
+				Event e = eventRepository.findOne(accepteduser.getId_event());
+				String eventDateString = dateFormat.format(e.getStartDate());
+				if ((eventDateString.equals(dateFormat.format(Todaydate)))
+						|| (eventDateString.equals(dateFormat.format(tomorrow)))) {
+					
+					mailService.sendReminderNotificationEvent(accepteduser.getUsername(),e);
 				}
-		 }
-		 return "Do not send notification";
+			}
+		}
 	}
-	
-	
 
-	
 	@GetMapping("/event")
-	public List<Event> listEvents(){
+	public List<Event> listEvents() {
 		return eventRepository.findAll();
 	}
-	
+
 	@GetMapping("/event/{id}")
-	public Event getEvent(@PathVariable Long id){
+	public Event getEvent(@PathVariable Long id) {
 		return eventRepository.findOne(id);
 	}
-	
+
 	@PutMapping("/event/{id}")
-	public Event update (@PathVariable Long id,@RequestBody Event t) {
+	public Event update(@PathVariable Long id, @RequestBody Event t) {
 		t.setId(id);
 		return eventRepository.save(t);
 	}
-	
+
 	@DeleteMapping("/event/{id}")
-	public boolean delete(@PathVariable Long id){
+	public boolean delete(@PathVariable Long id) {
 		eventRepository.delete(id);
-		return true ;
+		return true;
 	}
-	
-	
+
 }

@@ -43,13 +43,12 @@ public class MailService {
 	
 	}
 	
-	public void sendReminderNotificationEvent (String username , Long id) {
-		Event event = eventRepository.findOne(id);
+	public void sendReminderNotificationEvent (String username , Event e) {
 		SimpleMailMessage mail = new SimpleMailMessage ();
 		mail.setTo(username);
 		mail.setFrom("yosra.borchani.lfi1@gmail.com");
 		mail.setSubject("Reminder Event");
-		mail.setText(" Event information : Title: "+event.getTitle()+" ,Start Date: "+event.getStartDate()+" , End Date: "+event.getEndDate());
+		mail.setText(" Event information : Title: "+e.getTitle()+" ,Start Date: "+e.getStartDate()+" , End Date: "+e.getEndDate());
 		javaMailSender.send(mail);
 	}
 }

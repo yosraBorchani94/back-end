@@ -1,8 +1,10 @@
 package org.sid.web;
 
 import java.security.SecureRandom;
+import java.util.Iterator;
 import java.util.List;
 import org.sid.dao.UserRepository;
+import org.sid.entities.AppRole;
 import org.sid.entities.AppUser;
 import org.sid.mail.MailService;
 import org.sid.services.AccountService;
@@ -92,10 +94,14 @@ public class AccountRestController {
 	}
 
 	@PutMapping("/users/{id}")
-	public AppUser update(@PathVariable Long id, @RequestBody AppUser u) {
-		u.setId(id);
-		accountService.saveUser(u);
-		return u;
+	public AppUser update(@PathVariable Long id, @RequestBody  AppUser u) {
+		Iterator<AppRole> iterator = u.getRoles().iterator();
+		 while (iterator.hasNext()) {
+		        u.setId(id);
+		        accountService.saveUser(u);
+		        accountService.addRoleToUser(u.getUsername(), iterator.next().getRoleName());
+		 }
+		return appUser;
 	}
 
 	@DeleteMapping("/users/{id}")
