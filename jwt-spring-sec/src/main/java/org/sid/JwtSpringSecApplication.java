@@ -1,15 +1,11 @@
 package org.sid;
 
 import java.util.stream.Stream;
-
 import javax.annotation.Resource;
-
 import org.sid.dao.EventRepository;
-import org.sid.dao.TaskRepository;
 //import org.sid.entities.AppRole;
 import org.sid.entities.AppUser;
 import org.sid.entities.Event;
-import org.sid.entities.Task;
 import org.sid.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -22,8 +18,7 @@ import org.sid.uploadfile.StorageService;;
 
 @SpringBootApplication
 public class JwtSpringSecApplication implements CommandLineRunner{
-    @Autowired
-	private TaskRepository taskRepository;
+  
     @Autowired
    	private EventRepository eventRepository;
     @Autowired

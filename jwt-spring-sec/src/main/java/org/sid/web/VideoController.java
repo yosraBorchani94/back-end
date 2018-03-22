@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.sid.dao.VideoRepository;
 import org.sid.entities.Event;
-import org.sid.entities.Task;
 import org.sid.entities.Video;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;

@@ -3,6 +3,7 @@ package org.sid.entities;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 public class Video {
@@ -11,6 +12,7 @@ public class Video {
 	private Long id;
 	private String name;
 	private String url;
+	@Lob
 	private String description;
 	
 	

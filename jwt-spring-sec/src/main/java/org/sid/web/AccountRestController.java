@@ -26,7 +26,7 @@ public class AccountRestController {
 	private static SecureRandom random = new SecureRandom();
 	private static final String ALPHA = "abcdefghijklmnopqrstuvwxyz";
 	private static final String NUMERIC = "0123456789";
-	
+
 	int len = 6;
 
 	@Autowired
@@ -36,7 +36,6 @@ public class AccountRestController {
 	AppUser appUser = null;
 	@Autowired
 	private UserRepository userRepository;
-
 
 	public static String generatePassword(int len, String dic) {
 		String result = "";
@@ -63,22 +62,22 @@ public class AccountRestController {
 		return appUser;
 	}
 
-	@PostMapping(value="/forgotPassword")
+	@PostMapping(value = "/forgotPassword")
 	public String forgotPassword(@RequestBody AppUser u) {
 		String generatedString = null;
 		AppUser user = accountService.findUserByUsername(u.getUsername());
 		if (user != null) {
 			String password = generatePassword(len, NUMERIC + ALPHA);
-			 user.setPassword(password);
-			 accountService.saveUser(user);
-			 AppUser mailUser = new AppUser();
-			 mailUser.setUsername(u.getUsername());
-			 mailUser.setPassword(password);
-			 try {
-					mailService.sendNotification(mailUser);
-				} catch (MailException e) {
-					System.out.println(e);
-				}
+			user.setPassword(password);
+			accountService.saveUser(user);
+			AppUser mailUser = new AppUser();
+			mailUser.setUsername(u.getUsername());
+			mailUser.setPassword(password);
+			try {
+				mailService.sendNotification(mailUser);
+			} catch (MailException e) {
+				System.out.println(e);
+			}
 		}
 		return "success";
 	}
@@ -94,14 +93,19 @@ public class AccountRestController {
 	}
 
 	@PutMapping("/users/{id}")
-	public AppUser update(@PathVariable Long id, @RequestBody  AppUser u) {
-		Iterator<AppRole> iterator = u.getRoles().iterator();
-		 while (iterator.hasNext()) {
-		        u.setId(id);
-		        accountService.saveUser(u);
-		        accountService.addRoleToUser(u.getUsername(), iterator.next().getRoleName());
-		 }
-		return appUser;
+	public AppUser updateUser(@PathVariable Long id, @RequestBody AppUser u) {
+		System.out.println("in update ****** " + id + " " + u.getUsername() + " " + u.getRoles().iterator().next().getRoleName());
+		u.setId(id);
+		accountService.saveUser(u);
+		if (accountService.DeleteRoleFromUser(id)) {
+			accountService.addRoleToUser2(id, u.getRoles().iterator().next().getRoleName());
+		}
+	
+		
+		
+		
+
+		return u;
 	}
 
 	@DeleteMapping("/users/{id}")
@@ -109,5 +113,5 @@ public class AccountRestController {
 		userRepository.delete(id);
 		return true;
 	}
-	
+
 }

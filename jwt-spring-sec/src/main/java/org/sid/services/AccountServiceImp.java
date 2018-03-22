@@ -1,5 +1,7 @@
 package org.sid.services;
 
+import java.util.Iterator;
+
 import org.sid.dao.RoleRepository;
 import org.sid.dao.UserRepository;
 import org.sid.entities.AppRole;
@@ -44,5 +46,35 @@ public class AccountServiceImp implements AccountService{
 	public AppUser findUserByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
+	
+
+	@Override
+	public boolean DeleteRoleFromUser(Long id) {
+		AppUser user =  userRepository.findOne(id);
+		System.out.println("username ** "+user.getUsername() + " " + user.getRoles().size());
+		if(user.getRoles().size()>0 ) {
+			Iterator<AppRole> iterator = user.getRoles().iterator();
+			AppRole role = roleRepository.findByRoleName(iterator.next().getRoleName());
+			System.out.println("role id***  "  + role.getId() +" role name "+ role.getRoleName());
+			if (user.getRoles().remove(role)) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	@Override
+	public void addRoleToUser2(Long id, String roleName) {
+		System.out.println("---in addRoleToUser2---");
+		System.out.println("id----  "  +id +" rolename "+ roleName);
+		AppUser user =  userRepository.findOne(id);
+		System.out.println("username --- "  + user.getUsername() );
+		AppRole role = roleRepository.findByRoleName(roleName);
+		user.getRoles().add(role);		
+	}
+
+
+
 
 }
