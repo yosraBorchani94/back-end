@@ -9,5 +9,4 @@ import org.springframework.data.repository.CrudRepository;
 public interface UserRepository  extends JpaRepository<AppUser, Long>, CrudRepository<AppUser, Long>{
 	
 public AppUser findByUsername (String username) ;
-
 }

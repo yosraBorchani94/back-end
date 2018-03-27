@@ -66,8 +66,8 @@ public class AccountServiceImp implements AccountService{
 
 	@Override
 	public void addRoleToUser2(Long id, String roleName) {
-		System.out.println("---in addRoleToUser2---");
-		System.out.println("id----  "  +id +" rolename "+ roleName);
+		//System.out.println("---in addRoleToUser2---");
+		//System.out.println("id----  "  +id +" rolename "+ roleName);
 		AppUser user =  userRepository.findOne(id);
 		System.out.println("username --- "  + user.getUsername() );
 		AppRole role = roleRepository.findByRoleName(roleName);

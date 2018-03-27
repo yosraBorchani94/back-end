@@ -32,7 +32,7 @@ public class VideoController {
 	}
 	
 	@GetMapping("/video/{id}")
-	public Video getTask(@PathVariable Long id){
+	public Video getVideo(@PathVariable Long id){
 		return videoRepository.findOne(id);
 	}
 	
