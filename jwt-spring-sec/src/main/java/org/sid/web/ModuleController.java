@@ -13,9 +13,6 @@ import java.util.List;
 import org.sid.dao.ModuleRepository;
 import org.sid.entities.Module;
 import org.sid.services.ModuleService;
-
-
-
 @RestController
 @CrossOrigin("*")
 public class ModuleController {

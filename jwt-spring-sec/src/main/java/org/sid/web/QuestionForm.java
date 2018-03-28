@@ -3,7 +3,7 @@ package org.sid.web;
 public class QuestionForm {
 
     private Long id;
-	private String question_name;
+	private String questioName;
 	private String response1,response2,response3,response4 ;
 	private boolean checkbox1,checkbox2,checkbox3,checkbox4;
 	
@@ -14,11 +14,11 @@ public class QuestionForm {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getQuestion_name() {
-		return question_name;
+	public String getQuestionName() {
+		return questioName;
 	}
-	public void setQuestion_name(String question_name) {
-		this.question_name = question_name;
+	public void setQuestionName(String questioName) {
+		this.questioName = questioName;
 	}
 	public String getResponse1() {
 		return response1;
