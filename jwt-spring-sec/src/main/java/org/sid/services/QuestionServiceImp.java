@@ -1,11 +1,8 @@
 package org.sid.services;
 
-import java.util.List;
-
 import org.sid.dao.AnswerRepository;
 import org.sid.dao.QuestionRepository;
 import org.sid.entities.Answer;
-import org.sid.entities.Module;
 import org.sid.entities.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

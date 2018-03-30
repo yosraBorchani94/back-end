@@ -10,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Question {
@@ -18,9 +20,11 @@ public class Question {
 	private Long id;
 	@Column(unique = true)
 	private String questionName;
-	@ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL)
 	private Collection<Answer> answers = new ArrayList<>();
 	
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	Module module;
 	
 	public Question() {
 		super();
@@ -49,6 +53,13 @@ public class Question {
 	public void setAnswers(Collection<Answer> answers) {
 		this.answers = answers;
 	}
+//	public Module getModule() {
+//		return module;
+//	}
+//	public void setModule(Module module) {
+//		this.module = module;
+//	}
+	
 	
 	
 }

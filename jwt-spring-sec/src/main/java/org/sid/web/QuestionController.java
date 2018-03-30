@@ -3,11 +3,11 @@ package org.sid.web;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.sid.dao.AnswerRepository;
+import org.sid.dao.ModuleRepository;
 import org.sid.dao.QuestionRepository;
 import org.sid.entities.Answer;
-import org.sid.entities.AppRole;
+import org.sid.entities.Module;
 import org.sid.entities.Question;
 import org.sid.services.ModuleService;
 import org.sid.services.QuestionService;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,66 +36,23 @@ public class QuestionController {
 	private AnswerRepository answerRepository;
 
 	@Autowired
+	private ModuleRepository moduleRepository;
+
+	@Autowired
 	private QuestionService questionService;
 
 	@PostMapping("/question/{id}")
-	public void save(@RequestBody QuestionForm form, @PathVariable Long id) {
-
-		/*
-		 * System.out.println(form.getQuestionName());
-		 * System.out.println(form.getResponse1());
-		 * System.out.println(form.getResponse2());
-		 * System.out.println(form.getResponse3());
-		 * System.out.println(form.getResponse4());
-		 * System.out.println(form.isCheckbox1());
-		 * System.out.println(form.isCheckbox2());
-		 * System.out.println(form.isCheckbox3());
-		 * System.out.println(form.isCheckbox4());
-		 */
-
-		/* add question */
-		Question ques = new Question();
-		ques.setQuestionName(form.getQuestionName());
-		questionRepository.save(ques);
-		moduleService.addQuestionToModule(id, form.getQuestionName());
-
-		/* add 4 answers */
-		Answer a1 = new Answer();
-		a1.setAnswerName(form.getResponse1());
-		a1.setCorrect(form.isCheckbox1());
-		Question q1 = questionRepository.findByQuestionName(form.getQuestionName());
-		System.out.println(q1.getId());
-		answerRepository.save(a1);
-		questionService.addAnswerToQuestion(q1.getId(), form.getResponse1());
-
-		Answer a2 = new Answer();
-		a2.setAnswerName(form.getResponse2());
-		a2.setCorrect(form.isCheckbox2());
-		Question q2 = questionRepository.findByQuestionName(form.getQuestionName());
-		answerRepository.save(a2);
-		questionService.addAnswerToQuestion(q2.getId(), form.getResponse2());
-
-		Answer a3 = new Answer();
-		a3.setAnswerName(form.getResponse3());
-		a3.setCorrect(form.isCheckbox3());
-		Question q3 = questionRepository.findByQuestionName(form.getQuestionName());
-		answerRepository.save(a3);
-		questionService.addAnswerToQuestion(q3.getId(), form.getResponse3());
-
-		Answer a4 = new Answer();
-		a4.setAnswerName(form.getResponse4());
-		a4.setCorrect(form.isCheckbox4());
-		Question q4 = questionRepository.findByQuestionName(form.getQuestionName());
-		answerRepository.save(a4);
-		questionService.addAnswerToQuestion(q4.getId(), form.getResponse4());
-
+	public Question save(@RequestBody Question question, @PathVariable Long id) {
+		questionRepository.save(question);
+		moduleService.addQuestionToModule(id, question.getQuestionName());
+		return question;
 	}
 
 	@GetMapping("/question")
 	public List<Question> listQuestion() {
 		return questionRepository.findAll();
 	}
-	
+
 	@GetMapping("/question/{id}")
 	public Question getQuestion(@PathVariable Long id) {
 		return questionRepository.findOne(id);
@@ -114,30 +72,63 @@ public class QuestionController {
 		return listAnswer;
 	}
 
-	@DeleteMapping("/question/{id}")
-	public boolean delete(@PathVariable Long id) {
-		moduleService.deleteQuestionFromModule(id);
-		questionRepository.delete(id);
-
-		return true;
-	}
-
-	@GetMapping("/duplicateQuestion/{questionName}")
-	public boolean duplicateQuestion(@PathVariable String questionName) {
-		List<Question> listquest = questionRepository.findAll();
-		if (listquest.size() > 0) {
-			for (int i = 0; i < listquest.size(); i++) {
-				if (listquest.get(i).getQuestionName().equals(questionName)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+	 @DeleteMapping("/question/{id}")
+	 public boolean delete(@PathVariable Long id) {
+	 moduleService.deleteQuestionFromModule(id);
+	 questionRepository.delete(id);
 	
-	@GetMapping("/updateQuestion/{id}")
-	public void updateQuestion (@PathVariable Long id , @RequestBody QuestionForm form) {
-		System.out.println("**********" +id);
-	}
+	 return true;
+	 }
+
+//	@PutMapping("/updateQuestion/{id}")
+//	public void updateQuestion(@PathVariable Long id, @RequestBody UpdateQuestionForm form) {
+//		System.out.println("QuestionName: " + form.getQuestionName());
+//		System.out.println("idModule: " + form.getModuleId());
+//		System.out.println("idQuestion: " + id);
+//
+//		Module m =moduleRepository.findOne(form.getModuleId());
+//		Question q =new Question();
+//		q.setId(id);
+//		q.setQuestionName(form.getQuestionName());
+//		if (questionRepository.save(q) != null) {
+//			if (moduleService.deleteQuestionFromModule(id)) {
+//				moduleService.addQuestionToModuleUpdate(form.getModuleId(), id);
+//				
+//				Answer a = new Answer();
+//				a.setId(form.getTab().get(0).getId());
+//				a.setAnswerName(form.getTab().get(0).getAnswerName());
+//				a.setCorrect(form.getTab().get(0).isCorrect());
+//				System.out.println ("answer 1 : " + a.getId() + " " + a.getAnswerName()+ " " + a.isCorrect());
+//				
+//				Answer b = new Answer();
+//				b.setId(form.getTab().get(1).getId());
+//				b.setAnswerName(form.getTab().get(1).getAnswerName());
+//				b.setCorrect(form.getTab().get(1).isCorrect());
+//				System.out.println ("answer 2 : " + b.getId() + " " + b.getAnswerName()+ " " + b.isCorrect());
+//				
+//				Answer c = new Answer();
+//				c.setId(form.getTab().get(2).getId());
+//				c.setAnswerName(form.getTab().get(2).getAnswerName());
+//				c.setCorrect(form.getTab().get(2).isCorrect());
+//				System.out.println ("answer 3 : " + c.getId() + " " + c.getAnswerName()+ " " + c.isCorrect());
+//				
+//				Answer d = new Answer();
+//				d.setId(form.getTab().get(3).getId());
+//				d.setAnswerName(form.getTab().get(3).getAnswerName());
+//				d.setCorrect(form.getTab().get(3).isCorrect());
+//				System.out.println ("answer 4 : " + d.getId() + " " + d.getAnswerName()+ " " + d.isCorrect());
+//
+//				if ((answerRepository.save(a) != null) && (answerRepository.save(b) != null)
+//						&& (answerRepository.save(c) != null) && (answerRepository.save(d) != null)) {
+//					questionService.addAnswerToQuestion(id, a.getAnswerName());
+//					questionService.addAnswerToQuestion(id, b.getAnswerName());
+//					questionService.addAnswerToQuestion(id, c.getAnswerName());
+//					questionService.addAnswerToQuestion(id, d.getAnswerName());
+//				}
+//			}
+//			
+//		}
+//	
+//	}
 
 }

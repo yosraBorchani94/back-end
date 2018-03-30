@@ -94,8 +94,6 @@ public class AccountRestController {
 
 	@PutMapping("/users/{id}")
 	public AppUser updateUser(@PathVariable Long id, @RequestBody AppUser u) {
-		System.out.println(
-				"in update ****** " + id + " " + u.getUsername() + " " + u.getRoles().iterator().next().getRoleName());
 		u.setId(id);
 		accountService.saveUser(u);
 		if (accountService.DeleteRoleFromUser(id)) {

@@ -1,5 +1,6 @@
 package org.sid.services;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.sid.dao.ModuleRepository;
@@ -23,23 +24,40 @@ public class ModuleServiceImp implements ModuleService {
 	public void addQuestionToModule(Long id_module, String questionName) {
 		Module m = moduleRepository.findOne(id_module);
 		Question quest = questionRepository.findByQuestionName(questionName);
+		// System.out.println("***********************" +m.getId()+ " "+quest.getId());
+		// System.out.println("***********************" + m.getQuestions().size());
 		m.getQuestions().add(quest);
+
 	}
 
 	@Override
-	public void deleteQuestionFromModule(Long id_question) {
+	public boolean deleteQuestionFromModule(Long id_question) {
+		System.out.println(" in delete ");
 		Question quest = questionRepository.findOne(id_question);
-		System.out.println("quest.getId()  : " + quest.getId());
 		List<Module> listModule = moduleRepository.findAll();
-		for (int i = 0; i < listModule.size(); i++) {
-			System.out.println("id question in module : " + listModule.get(i).getQuestions().iterator().next().getId()
-					+ "module id :" + listModule.get(i).getId());
-			if (listModule.get(i).getQuestions().iterator().next().getId() == id_question) {
-				listModule.get(i).getQuestions().remove(quest);
+		System.out.println("size module " + listModule.size());
+		System.out.println("id_question  " + id_question);
+		if (listModule.size() > 0) {
+			for (int i = 0; i < listModule.size(); i++) {
+				for (Iterator<Question> iterator = listModule.get(i).getQuestions().iterator(); iterator.hasNext();) {
+					if (iterator.next().getId() == id_question) {
+						listModule.get(i).getQuestions().remove(quest);
+						return true;
+					}
+
+				}
 			}
-
+			return false;
 		}
+		return false;
+	}
 
+	@Override
+	public void addQuestionToModuleUpdate(Long idModule, Long idQuestion) {
+
+		Module m = moduleRepository.findOne(idModule);
+		Question quest = questionRepository.findOne(idQuestion);
+		m.getQuestions().add(quest);
 	}
 
 }
