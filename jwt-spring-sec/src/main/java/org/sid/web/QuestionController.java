@@ -80,55 +80,55 @@ public class QuestionController {
 	 return true;
 	 }
 
-//	@PutMapping("/updateQuestion/{id}")
-//	public void updateQuestion(@PathVariable Long id, @RequestBody UpdateQuestionForm form) {
-//		System.out.println("QuestionName: " + form.getQuestionName());
-//		System.out.println("idModule: " + form.getModuleId());
-//		System.out.println("idQuestion: " + id);
-//
-//		Module m =moduleRepository.findOne(form.getModuleId());
-//		Question q =new Question();
-//		q.setId(id);
-//		q.setQuestionName(form.getQuestionName());
-//		if (questionRepository.save(q) != null) {
-//			if (moduleService.deleteQuestionFromModule(id)) {
-//				moduleService.addQuestionToModuleUpdate(form.getModuleId(), id);
-//				
-//				Answer a = new Answer();
-//				a.setId(form.getTab().get(0).getId());
-//				a.setAnswerName(form.getTab().get(0).getAnswerName());
-//				a.setCorrect(form.getTab().get(0).isCorrect());
-//				System.out.println ("answer 1 : " + a.getId() + " " + a.getAnswerName()+ " " + a.isCorrect());
-//				
-//				Answer b = new Answer();
-//				b.setId(form.getTab().get(1).getId());
-//				b.setAnswerName(form.getTab().get(1).getAnswerName());
-//				b.setCorrect(form.getTab().get(1).isCorrect());
-//				System.out.println ("answer 2 : " + b.getId() + " " + b.getAnswerName()+ " " + b.isCorrect());
-//				
-//				Answer c = new Answer();
-//				c.setId(form.getTab().get(2).getId());
-//				c.setAnswerName(form.getTab().get(2).getAnswerName());
-//				c.setCorrect(form.getTab().get(2).isCorrect());
-//				System.out.println ("answer 3 : " + c.getId() + " " + c.getAnswerName()+ " " + c.isCorrect());
-//				
-//				Answer d = new Answer();
-//				d.setId(form.getTab().get(3).getId());
-//				d.setAnswerName(form.getTab().get(3).getAnswerName());
-//				d.setCorrect(form.getTab().get(3).isCorrect());
-//				System.out.println ("answer 4 : " + d.getId() + " " + d.getAnswerName()+ " " + d.isCorrect());
-//
-//				if ((answerRepository.save(a) != null) && (answerRepository.save(b) != null)
-//						&& (answerRepository.save(c) != null) && (answerRepository.save(d) != null)) {
-//					questionService.addAnswerToQuestion(id, a.getAnswerName());
-//					questionService.addAnswerToQuestion(id, b.getAnswerName());
-//					questionService.addAnswerToQuestion(id, c.getAnswerName());
-//					questionService.addAnswerToQuestion(id, d.getAnswerName());
-//				}
-//			}
-//			
-//		}
-//	
-//	}
+	@PutMapping("/updateQuestion/{id}")
+	public void updateQuestion(@PathVariable Long id, @RequestBody UpdateQuestionForm form) {
+		System.out.println("QuestionName: " + form.getQuestionName());
+		System.out.println("idModule: " + form.getModuleId());
+		System.out.println("idQuestion: " + id);
+
+		Module m =moduleRepository.findOne(form.getModuleId());
+		Question q =new Question();
+		q.setId(id);
+		q.setQuestionName(form.getQuestionName());
+		if (questionRepository.save(q) != null) {
+			if (moduleService.deleteQuestionFromModule(id)) {
+				moduleService.addQuestionToModuleUpdate(form.getModuleId(), id);
+				
+				Answer a = new Answer();
+				a.setId(form.getTab().get(0).getId());
+				a.setAnswerName(form.getTab().get(0).getAnswerName());
+				a.setCorrect(form.getTab().get(0).isCorrect());
+				System.out.println ("answer 1 : " + a.getId() + " " + a.getAnswerName()+ " " + a.isCorrect());
+				
+				Answer b = new Answer();
+				b.setId(form.getTab().get(1).getId());
+				b.setAnswerName(form.getTab().get(1).getAnswerName());
+				b.setCorrect(form.getTab().get(1).isCorrect());
+				System.out.println ("answer 2 : " + b.getId() + " " + b.getAnswerName()+ " " + b.isCorrect());
+				
+				Answer c = new Answer();
+				c.setId(form.getTab().get(2).getId());
+				c.setAnswerName(form.getTab().get(2).getAnswerName());
+				c.setCorrect(form.getTab().get(2).isCorrect());
+				System.out.println ("answer 3 : " + c.getId() + " " + c.getAnswerName()+ " " + c.isCorrect());
+				
+				Answer d = new Answer();
+				d.setId(form.getTab().get(3).getId());
+				d.setAnswerName(form.getTab().get(3).getAnswerName());
+				d.setCorrect(form.getTab().get(3).isCorrect());
+				System.out.println ("answer 4 : " + d.getId() + " " + d.getAnswerName()+ " " + d.isCorrect());
+
+				if ((answerRepository.save(a) != null) && (answerRepository.save(b) != null)
+						&& (answerRepository.save(c) != null) && (answerRepository.save(d) != null)) {
+					questionService.addAnswerToQuestion(id, a.getAnswerName());
+					questionService.addAnswerToQuestion(id, b.getAnswerName());
+					questionService.addAnswerToQuestion(id, c.getAnswerName());
+					questionService.addAnswerToQuestion(id, d.getAnswerName());
+				}
+			}
+			
+		}
+	
+	}
 
 }
