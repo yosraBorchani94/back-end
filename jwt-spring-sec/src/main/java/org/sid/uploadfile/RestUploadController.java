@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.sid.dao.QuizRepository;
+import org.sid.entities.Quiz;
 import org.sid.uploadfile.StorageService;;
 
 @CrossOrigin("*")
@@ -33,8 +34,32 @@ public class RestUploadController {
 	private static final String FILE_PATH = "C:/upload/";
 	@Autowired
 	StorageService storageService;
-
+	
+	
+	@Autowired
+	QuizRepository quizRepository;
+	
 	List<String> files = new ArrayList<String>();
+	
+	/* Image upload */
+	@PostMapping(value = "/uploadPicture/{id}")
+	public String uploadImage(@RequestParam("uploadfile") MultipartFile file, @PathVariable Long id)
+			throws Exception {
+		try {
+			storageService.store(file, id+"");
+			files.add(file.getOriginalFilename());
+			Quiz q = quizRepository.findOne(id);
+			q.setId(id);
+			q.setUrlPicture(FILE_PATH+id+"/"+file.getOriginalFilename());
+			quizRepository.save(q);
+			return "You successfully uploaded - " + file.getOriginalFilename();
+		} catch (Exception e) {
+			throw new Exception("FAIL! Maybe You had uploaded the file before or the file's size > 500KB");
+		}
+	}
+	
+	
+	
 
 	/* Multiple file upload */
 	@PostMapping(value = "/uploadfile/{username}")

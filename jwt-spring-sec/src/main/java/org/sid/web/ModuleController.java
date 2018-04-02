@@ -9,13 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import ch.qos.logback.core.db.dialect.SybaseSqlAnywhereDialect;
-
 import java.util.List;
 import org.sid.dao.ModuleRepository;
 import org.sid.entities.Module;
-import org.sid.entities.Question;
 import org.sid.services.ModuleService;
 
 @RestController

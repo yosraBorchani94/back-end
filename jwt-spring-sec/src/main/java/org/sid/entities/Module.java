@@ -1,9 +1,7 @@
 package org.sid.entities;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+
 
 @Entity
 public class Module {
@@ -23,19 +21,19 @@ public class Module {
 	private String duree;
 	private int nbr_questions;
 	@ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL )
-	private List<Question> questions = new ArrayList<>();
+	private List<Quiz> quiz = new ArrayList<>();
 	
 	
 	public Module() {
 		super();
 	}
-	public Module(Long id, String nom, String duree, int nbr_questions, List<Question> questions) {
+	public Module(Long id, String nom, String duree, int nbr_questions, List<Quiz> quiz) {
 		super();
 		this.id = id;
 		this.nom = nom;
 		this.duree = duree;
 		this.nbr_questions = nbr_questions;
-		this.questions = questions;
+		this.quiz = quiz;
 	}
 	public Long getId() {
 		return id;
@@ -61,11 +59,11 @@ public class Module {
 	public void setNbr_questions(int nbr_questions) {
 		this.nbr_questions = nbr_questions;
 	}
-	public List<Question> getQuestions() {
-		return questions;
+	public List<Quiz> getQuiz() {
+		return quiz;
 	}
-	public void setQuestions(List<Question> questions) {
-		this.questions = questions;
+	public void setQuiz(List<Quiz> quiz) {
+		this.quiz = quiz;
 	}
 	
 	

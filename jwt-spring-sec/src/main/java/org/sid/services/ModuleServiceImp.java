@@ -2,11 +2,10 @@ package org.sid.services;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.sid.dao.ModuleRepository;
-import org.sid.dao.QuestionRepository;
+import org.sid.dao.QuizRepository;
 import org.sid.entities.Module;
-import org.sid.entities.Question;
+import org.sid.entities.Quiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,31 +16,37 @@ public class ModuleServiceImp implements ModuleService {
 
 	@Autowired
 	private ModuleRepository moduleRepository;
+
 	@Autowired
-	private QuestionRepository questionRepository;
+	private QuizRepository quizRepository;
 
 	@Override
-	public void addQuestionToModule(Long id_module, String questionName) {
+	public void addQuizToModule(Long id_module, String questionName) {
 		Module m = moduleRepository.findOne(id_module);
-		Question quest = questionRepository.findByQuestionName(questionName);
-		// System.out.println("***********************" +m.getId()+ " "+quest.getId());
-		// System.out.println("***********************" + m.getQuestions().size());
-		m.getQuestions().add(quest);
+		Quiz quiz = quizRepository.findByQuestionName(questionName);
+		m.getQuiz().add(quiz);
+	}
+
+	@Override
+	public void addQuizToModuleUpdate(Long idModule, Long idQuestion) {
+		Module m = moduleRepository.findOne(idModule);
+		Quiz quiz = quizRepository.findOne(idQuestion);
+		m.getQuiz().add(quiz);
 
 	}
 
 	@Override
-	public boolean deleteQuestionFromModule(Long id_question) {
+	public boolean deleteQuizFromModule(Long id_question) {
 		System.out.println(" in delete ");
-		Question quest = questionRepository.findOne(id_question);
+		Quiz quiz = quizRepository.findOne(id_question);
 		List<Module> listModule = moduleRepository.findAll();
 		System.out.println("size module " + listModule.size());
 		System.out.println("id_question  " + id_question);
 		if (listModule.size() > 0) {
 			for (int i = 0; i < listModule.size(); i++) {
-				for (Iterator<Question> iterator = listModule.get(i).getQuestions().iterator(); iterator.hasNext();) {
+				for (Iterator<Quiz> iterator = listModule.get(i).getQuiz().iterator(); iterator.hasNext();) {
 					if (iterator.next().getId() == id_question) {
-						listModule.get(i).getQuestions().remove(quest);
+						listModule.get(i).getQuiz().remove(quiz);
 						return true;
 					}
 
@@ -51,13 +56,4 @@ public class ModuleServiceImp implements ModuleService {
 		}
 		return false;
 	}
-
-	@Override
-	public void addQuestionToModuleUpdate(Long idModule, Long idQuestion) {
-
-		Module m = moduleRepository.findOne(idModule);
-		Question quest = questionRepository.findOne(idQuestion);
-		m.getQuestions().add(quest);
-	}
-
 }

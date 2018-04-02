@@ -21,13 +21,12 @@ public class StorageService {
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	private final Path rootLocation = Paths.get("C:/upload");
 	private Path rootLocation1;
- 
+    
 	public void store(MultipartFile file, String username){
 		rootLocation1 =Paths.get("C:/upload/"+username);
 		try {
 			Files.createDirectory(rootLocation1);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		try {
