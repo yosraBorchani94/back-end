@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.sid.dao.ModuleRepository;
 import org.sid.entities.Module;
+import org.sid.entities.Quiz;
 import org.sid.services.ModuleService;
 
 @RestController
@@ -49,5 +53,25 @@ public class ModuleController {
 		m.setId(id);
 		return moduleRepository.save(m);
 	}
+	
+	@GetMapping("/getAllQuestionFromModule/{id}")
+	public List getAllQuestionFromModule(@PathVariable Long id){
+		List idQuestions = new ArrayList<>(); 
+		List<Module> listModule = moduleRepository.findAll();
+		if (listModule.size() > 0) {
+			for (int i = 0; i < listModule.size(); i++) {
+				if(listModule.get(i).getId() == id) {
+					//System.out.println("size : " + listModule.get(i).getQuiz().size());
+					for (Iterator<Quiz> iterator = listModule.get(i).getQuiz().iterator(); iterator.hasNext();) {
+						idQuestions.add(iterator.next().getId());
+					}
+				}
+			}
+			return idQuestions;
+		}
+		return idQuestions;
+	}
+	
+	
 
 }

@@ -1,11 +1,11 @@
 package org.sid.uploadfile;
 
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
- 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -21,7 +21,27 @@ public class StorageService {
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	private final Path rootLocation = Paths.get("C:/upload");
 	private Path rootLocation1;
-    
+ 
+	public void storeImage(MultipartFile file, String username){
+		rootLocation1 =Paths.get("C:/upload/"+username);
+			
+		try {
+			if (Files.exists(rootLocation1)) {
+				 FileSystemUtils.deleteRecursively(rootLocation1.toFile());
+				 Files.createDirectory(rootLocation1);	
+			}else if (Files.notExists(rootLocation1)){
+				Files.createDirectory(rootLocation1);	
+			}
+		
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		try {
+            Files.copy(file.getInputStream(), this.rootLocation1.resolve(file.getOriginalFilename()));
+        } catch (Exception e) {
+        	throw new RuntimeException("FAIL!");
+        }
+	}
 	public void store(MultipartFile file, String username){
 		rootLocation1 =Paths.get("C:/upload/"+username);
 		try {
@@ -35,6 +55,7 @@ public class StorageService {
         	throw new RuntimeException("FAIL!");
         }
 	}
+ 
  
     public Resource loadFile(String filename) {
         try {

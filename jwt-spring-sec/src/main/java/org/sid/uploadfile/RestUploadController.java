@@ -46,7 +46,7 @@ public class RestUploadController {
 	public String uploadImage(@RequestParam("uploadfile") MultipartFile file, @PathVariable Long id)
 			throws Exception {
 		try {
-			storageService.store(file, id+"");
+			storageService.storeImage(file, id+"");
 			files.add(file.getOriginalFilename());
 			Quiz q = quizRepository.findOne(id);
 			q.setId(id);

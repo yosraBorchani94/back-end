@@ -58,4 +58,33 @@ public class QuizController {
 		quizRepository.delete(id);
 		return true;
 	}
+
+	@GetMapping("/convertMinutes/{duree}")
+	public TimeFormat getTime(@PathVariable int duree) {
+		int hours = duree / 60;
+		int minutes = duree % 60;
+		String hoursString = "";
+		String minutesString = "";
+		System.out.println(hours + ":" + minutes);
+		if (((hours >= 0) && (hours <= 9)) && ((minutes >= 0) && (minutes <= 9))) {
+			hoursString = "0" + hours;
+			minutesString = "0" + minutes;
+		} else if ((hours >= 0) && (hours <= 9)) {
+			hoursString = "0" + hours;
+			minutesString = minutes + "";
+			System.out.println("hoursString " + hoursString);
+		} else if ((minutes >= 0) && (minutes <= 9)) {
+			minutesString = "0" + minutes;
+			hoursString = "0" + hours;
+			System.out.println("minutesString " + minutesString);
+		}else {
+			hoursString = hours + "";
+			minutesString = minutes + "";
+		}
+		TimeFormat tm = new TimeFormat();
+		tm.setHours(hoursString);
+		tm.setMinutes(minutesString);
+		return tm;
+
+	}
 }
