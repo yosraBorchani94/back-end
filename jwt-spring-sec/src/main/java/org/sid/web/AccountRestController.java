@@ -107,5 +107,12 @@ public class AccountRestController {
 		userRepository.delete(id);
 		return true;
 	}
+	
+	@GetMapping("/userByUsername/{username:.*}")
+	public AppUser getUserByUsername(@PathVariable String username) {
+		AppUser user = accountService.findUserByUsername(username);
+	    return user;
+	}
+
 
 }

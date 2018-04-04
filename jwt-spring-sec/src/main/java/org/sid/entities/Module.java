@@ -1,6 +1,7 @@
 package org.sid.entities;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,7 +22,7 @@ public class Module {
 	private String duree;
 	private int nbr_questions;
 	@ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL )
-	private List<Quiz> quiz = new ArrayList<>();
+	private Collection<Quiz> quiz = new ArrayList<>();
 	
 	
 	public Module() {
@@ -59,10 +60,10 @@ public class Module {
 	public void setNbr_questions(int nbr_questions) {
 		this.nbr_questions = nbr_questions;
 	}
-	public List<Quiz> getQuiz() {
+	public Collection<Quiz> getQuiz() {
 		return quiz;
 	}
-	public void setQuiz(List<Quiz> quiz) {
+	public void setQuiz(Collection<Quiz> quiz) {
 		this.quiz = quiz;
 	}
 	
