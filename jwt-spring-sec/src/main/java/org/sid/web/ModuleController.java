@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,9 +29,8 @@ import org.sid.services.ModuleService;
 @CrossOrigin("*")
 public class ModuleController {
 
-	HashMap<String,Integer> hmapQuestion = new HashMap<String,Integer>();
-	
-	
+	HashMap<String, Integer> hmapQuestion = new HashMap<String, Integer>();
+
 	@Autowired
 	private ModuleService moduleService;
 	@Autowired
@@ -90,6 +90,21 @@ public class ModuleController {
 
 	}
 
+	@GetMapping("/getQuestionFromModuleShuffle/{id}")
+	public List<Quiz> getQuestionFromModuleShuffle(@PathVariable Long id) {
+		Module m = moduleRepository.findOne(id);
+		List<Quiz> listQuestion = getAllQuestionFromModule(id);
+		List<Quiz> listQuestionshuffle = new ArrayList<>();
+		Collections.shuffle(listQuestion);
+
+		for (int i = 0; i < m.getNbr_questions(); i++) {
+			// System.out.print(" Shuffle array: " +listQuestion.get(i).getId());
+			listQuestionshuffle.add(listQuestion.get(i));
+
+		}
+		return listQuestionshuffle;
+	}
+
 	public int numberOfCorrectAnswers(Long id) {
 		int cpt = 0;
 		Quiz q = quizRepository.findOne(id);
@@ -108,66 +123,86 @@ public class ModuleController {
 		return cpt;
 	}
 
-	public int  findTheCorrectAnswer(String idQuestion, String answer) {
+	public int findTheCorrectAnswer(String idQuestion, String answer) {
 		int myCpt = 0;
-	
+
 		System.out.println(idQuestion + " " + answer);
 		Quiz q = quizRepository.findOne(Long.parseLong(idQuestion));
-	
+
 		if (q.getChoice1().equals(answer)) {
 			if (q.isCheckbox1()) {
 				myCpt++;
+			} else {
+				myCpt--;
 			}
 		} else if (q.getChoice2().equals(answer)) {
 			if (q.isCheckbox2()) {
 				myCpt++;
+			} else {
+				myCpt--;
 			}
 		} else if (q.getChoice3().equals(answer)) {
 			if (q.isCheckbox3()) {
 				myCpt++;
+			} else {
+				myCpt--;
 			}
 		} else {
 			if (q.isCheckbox4()) {
 				myCpt++;
+			} else {
+				myCpt--;
 			}
 		}
-		
-		System.out.println ("myCpt: "+myCpt);
+
+		System.out.println("myCpt: " + myCpt);
 		return myCpt;
-		
-	
 	}
+	
+//	public HashMap<String, Integer> getUserResponceMap (Collection<String> MyArrayAnswers){
+//		
+//	}
 
 	@PostMapping("/calculScore")
-	public void getScore(@RequestBody Collection<String> MyArrayAnswers) {
+	public int getScore(@RequestBody Collection<String> MyArrayAnswers) {
+		
 		// clear hash map
 		hmapQuestion.clear();
-		int myCpt;
+		int myCpt, cpt;
+		int score = 0;
 		for (Iterator<String> iterator = MyArrayAnswers.iterator(); iterator.hasNext();) {
 			// System.out.println(iterator.next());
 			StringTokenizer st2 = new StringTokenizer(iterator.next(), ":");
 			String idQues = st2.nextElement().toString();
 			String answer = st2.nextElement().toString();
-			myCpt = findTheCorrectAnswer(idQues,answer);
+			myCpt = findTheCorrectAnswer(idQues, answer);
 			if (hmapQuestion.containsKey(idQues)) {
 				int oldCpt = hmapQuestion.get(idQues);
-				int newCpt = oldCpt+myCpt;
-				System.out.println ("oldCpt : "+oldCpt + "  "+ "newCpt : " +newCpt );
+				int newCpt = oldCpt + myCpt;
+				System.out.println("oldCpt : " + oldCpt + "  " + "newCpt : " + newCpt);
 				hmapQuestion.put(idQues, newCpt);
-			}else {
+			} else {
 				hmapQuestion.put(idQues, myCpt);
 			}
 		}
-		
-		 /* Display content of hmap using Iterator*/
-		System.out.println (" ------------------------------------------ ");
-		 Set set = hmapQuestion.entrySet();
-	      Iterator iterator = set.iterator();
-	      while(iterator.hasNext()) {
-	         Map.Entry mentry = (Map.Entry)iterator.next();
-	         System.out.print("key is: "+ mentry.getKey() + " & Value is: ");
-	         System.out.println(mentry.getValue());
-	      }
+
+		/* Display content of hmap using Iterator */
+		System.out.println(" ------------------------------------------ ");
+		Set set = hmapQuestion.entrySet();
+		Iterator iterator = set.iterator();
+		while (iterator.hasNext()) {
+			Map.Entry mentry = (Map.Entry) iterator.next();
+			System.out.print("key is: " + mentry.getKey() + " & Value is: ");
+			System.out.println(mentry.getValue());
+			cpt = numberOfCorrectAnswers(Long.parseLong(mentry.getKey().toString()));
+			System.out.println(" key  " + mentry.getKey() + " cpt : " + cpt);
+			if (cpt == Integer.parseInt(mentry.getValue().toString())) {
+				score += 1;
+			}
+
+		}
+		System.out.println("votre scrore final : " + score);
+		return score;
 	}
 
 }

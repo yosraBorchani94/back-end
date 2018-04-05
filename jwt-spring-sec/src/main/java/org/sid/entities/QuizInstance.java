@@ -17,19 +17,23 @@ public class QuizInstance {
 	
 	@ManyToOne (fetch = FetchType.EAGER )
 	private Quiz Quiz;
-
 	
+	private String userAnswers;
+
 	
 	public QuizInstance() {
 		super();
 	}
 
-	public QuizInstance(Long id, ModuleInstance moduleInstance, org.sid.entities.Quiz quiz) {
+	public QuizInstance(Long id, ModuleInstance moduleInstance, org.sid.entities.Quiz quiz, String userAnswers) {
 		super();
 		this.id = id;
 		this.moduleInstance = moduleInstance;
 		Quiz = quiz;
+		this.userAnswers = userAnswers;
 	}
+
+
 
 	public Long getId() {
 		return id;
@@ -54,6 +58,15 @@ public class QuizInstance {
 	public void setQuiz(Quiz quiz) {
 		Quiz = quiz;
 	}
+
+	public String getUserAnswers() {
+		return userAnswers;
+	}
+
+	public void setUserAnswers(String userAnswers) {
+		this.userAnswers = userAnswers;
+	}
+	
 	
 	
 }

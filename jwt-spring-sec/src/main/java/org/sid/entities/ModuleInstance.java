@@ -25,14 +25,20 @@ public class ModuleInstance {
 	public ModuleInstance() {
 		super();
 	}
-
 	
-	public ModuleInstance(Long id, Long idModule, Long idUser) {
+	
+
+
+	public ModuleInstance(Long id, Long idModule, Long idUser, int score, Collection<QuizInstance> quizInstance) {
 		super();
 		this.id = id;
 		this.idModule = idModule;
 		this.idUser = idUser;
+		this.score = score;
+		this.quizInstance = quizInstance;
 	}
+
+
 
 
 	public Long getId() {
@@ -65,7 +71,27 @@ public class ModuleInstance {
 	}
 
 
+	public int getScore() {
+		return score;
+	}
+
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+
+	public Collection<QuizInstance> getQuizInstance() {
+		return quizInstance;
+	}
+
+
+	public void setQuizInstance(Collection<QuizInstance> quizInstance) {
+		this.quizInstance = quizInstance;
+	}
+
 	
+
 	
 	
 }
