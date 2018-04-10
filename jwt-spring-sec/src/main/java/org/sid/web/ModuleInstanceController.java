@@ -1,6 +1,8 @@
 package org.sid.web;
 
 import org.sid.dao.ModuleInstanceRepository;
+import org.sid.dao.ModuleRepository;
+import org.sid.entities.Module;
 import org.sid.entities.ModuleInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,6 +20,8 @@ public class ModuleInstanceController {
 	@Autowired
 	private ModuleInstanceRepository moduleInstanceRepository;
 	
+	@Autowired
+	private ModuleRepository moduleRepository;
 	
 	
 	@PostMapping("/addUserToModule")

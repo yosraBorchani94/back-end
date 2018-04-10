@@ -7,4 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ModuleInstanceRepository extends JpaRepository<ModuleInstance, Long>, CrudRepository<ModuleInstance, Long> {
 
+	public ModuleInstance findByIdUser(Long id);
+	
+	
 }

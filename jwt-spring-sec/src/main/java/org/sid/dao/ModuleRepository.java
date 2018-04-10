@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ModuleRepository extends JpaRepository<Module, Long>,CrudRepository<Module, Long> {
-
+ 
+	public Module findByLevel (int level) ;
 }

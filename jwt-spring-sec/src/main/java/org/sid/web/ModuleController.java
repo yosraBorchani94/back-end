@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,9 +20,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.json.JSONObject;
+import org.sid.dao.ModuleInstanceRepository;
 import org.sid.dao.ModuleRepository;
 import org.sid.dao.QuizRepository;
+import org.sid.dao.UserRepository;
+import org.sid.entities.AppUser;
 import org.sid.entities.Module;
+import org.sid.entities.ModuleInstance;
 import org.sid.entities.Quiz;
 import org.sid.services.ModuleService;
 
@@ -38,15 +44,30 @@ public class ModuleController {
 
 	@Autowired
 	private QuizRepository quizRepository;
-
+	
+	@Autowired
+	private UserRepository UserRepository;
+	
+	@Autowired
+	private ModuleInstanceRepository moduleInstanceRepository;
+	
 	@PostMapping("/module")
 	public Module addModule(@RequestBody Module module) {
+		int minScore = (module.getNbr_questions() * 60)/100;
+		module.setMinScore(minScore);
 		return moduleRepository.save(module);
 	}
 
 	@GetMapping("/module")
 	public List<Module> listModules() {
 		return moduleRepository.findAll();
+	}
+	
+	@GetMapping("/getModulesSorted")
+	public List<Module> getModulesSorted () {
+		List<Module> listModule = moduleRepository.findAll();
+		listModule.sort(Comparator.comparing(Module:: getLevel));
+		return listModule;
 	}
 
 	@DeleteMapping("/module/{id}")
@@ -63,8 +84,71 @@ public class ModuleController {
 	@PutMapping("/module/{id}")
 	public Module updateModule(@PathVariable Long id, @RequestBody Module m) {
 		m.setId(id);
+		int minScore = (m.getNbr_questions() * 60)/100;
+		m.setMinScore(minScore);
 		return moduleRepository.save(m);
 	}
+	
+	public Long checkprecedantTest (Long idModel){
+		Module m = moduleRepository.findOne(idModel);
+		System.out.println (" the Module you are about to pass is : " + m.getLevel());
+		if ( m.getLevel() > 1 ) {
+			int precedentLevel =  m.getLevel()-1;
+			System.out.println ("the precedent Module level : " + precedentLevel);
+			Module ml = moduleRepository.findByLevel(precedentLevel);
+			System.out.println (" the precedent Module id" + ml.getId()); 
+			return  ml.getId();
+		}
+		return (long) 0;
+		 
+	}
+
+	@PostMapping (value ="/checkPassTheTest/{idModule}")
+	public int checkPassTheTest (@PathVariable Long idModule, @RequestBody String username) {
+	
+		AppUser user = UserRepository.findByUsername(username);
+		Module m = moduleRepository.findOne(idModule);
+		System.out.println("user : " +user.getId() + " module :" + m.getId() + " Minscore :"+m.getMinScore());
+		List <ModuleInstance> ModuleByUser = moduleInstanceRepository.findAll();
+		if (ModuleByUser.size() > 0) {
+			for (int i = 0; i < ModuleByUser.size(); i++) {
+				System.out.println ("idUser " + ModuleByUser.get(i).getIdUser() + " idModule:  "+ModuleByUser.get(i).getIdModule() + " score : "+ModuleByUser.get(i).getScore());
+				if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
+					System.out.println("you succeded  "+ m.getLevel());
+					return 0;
+				}
+				else if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idModule) && (ModuleByUser.get(i).getScore() <  m.getMinScore())){
+					System.out.println ("try again this Test");
+					return 1;
+
+				}else {
+					System.out.println ("u didn't take the test yet make sure this is the right test ");
+					Long idPrecedentModule = checkprecedantTest(idModule);
+					if (idPrecedentModule != 0) {
+						if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idPrecedentModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
+							System.out.println ("u succeded the precedent exam u can take this level now ");
+							return 2;
+						}else {
+							System.out.println ("u need to pass the precedent Module before taking this exam ");
+							return 3;
+						}
+					}
+				}
+			}
+		}
+		return 4;
+	}
+	
+	@GetMapping("/checkNumberOfQuestions/{id}")
+	public boolean checkNumberOfQuestions ( Long id) {
+		Module m = moduleRepository.findOne(id);
+		List<Quiz> listQuiz = getAllQuestionFromModule(id);
+		if (listQuiz.size() >= m.getNbr_questions()) {
+			return true;
+		}
+		return false;
+	}
+
 
 	@GetMapping("/getAllQuestionFromModule/{id}")
 	public List<Quiz> getAllQuestionFromModule(@PathVariable Long id) {
@@ -104,6 +188,9 @@ public class ModuleController {
 		}
 		return listQuestionshuffle;
 	}
+	
+	
+	
 
 	public int numberOfCorrectAnswers(Long id) {
 		int cpt = 0;

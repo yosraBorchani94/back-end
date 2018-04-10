@@ -18,6 +18,7 @@ public class ModuleInstance {
 	private Long idModule;
 	private Long idUser;
 	private int score;
+
 	@OneToMany (fetch = FetchType.EAGER )
 	private Collection<QuizInstance> quizInstance = new ArrayList<>();
 
@@ -36,6 +37,7 @@ public class ModuleInstance {
 		this.idUser = idUser;
 		this.score = score;
 		this.quizInstance = quizInstance;
+		
 	}
 
 
@@ -90,8 +92,4 @@ public class ModuleInstance {
 		this.quizInstance = quizInstance;
 	}
 
-	
-
-	
-	
 }
