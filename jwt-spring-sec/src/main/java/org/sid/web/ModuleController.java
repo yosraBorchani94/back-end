@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-
-import org.json.JSONObject;
 import org.sid.dao.ModuleInstanceRepository;
 import org.sid.dao.ModuleRepository;
 import org.sid.dao.QuizRepository;
@@ -80,6 +78,11 @@ public class ModuleController {
 	public Module getModule(@PathVariable Long id) {
 		return moduleRepository.findOne(id);
 	}
+	
+	@GetMapping("/getModuleByName/{nom}")
+	public Module getModuleName(@PathVariable String nom) {
+		return moduleRepository.findByNom(nom);
+	}
 
 	@PutMapping("/module/{id}")
 	public Module updateModule(@PathVariable Long id, @RequestBody Module m) {
@@ -88,6 +91,39 @@ public class ModuleController {
 		m.setMinScore(minScore);
 		return moduleRepository.save(m);
 	}
+	
+	@GetMapping("/actifModule")
+	public List<Module> getActifModule() {
+		List<Module> listModule = moduleRepository.findAll();
+		List<Module> listModuleActif = new ArrayList<>();
+		for (int i = 0; i < listModule.size(); i++) {
+			if(listModule.get(i).isTotalQuestions()) {
+				listModuleActif.add(listModule.get(i));
+			}
+		}
+		return listModuleActif;
+	}
+	
+	@GetMapping("/inProgressModule")
+	public List<InProgressModuleForm> getInProgressModule() {
+		List<Module> listModule = moduleRepository.findAll();
+		List<InProgressModuleForm> inProgress  = new ArrayList<>();
+		int questionsLeft =0;
+		for (int i = 0; i < listModule.size(); i++) {
+			if(!listModule.get(i).isTotalQuestions()) {	
+				InProgressModuleForm e = new InProgressModuleForm();
+				questionsLeft = listModule.get(i).getNbr_questions() - listModule.get(i).getQuiz().size() ;
+                e.setModule(listModule.get(i));
+                e.setQuestionsLeft(questionsLeft);
+				inProgress.add(e);
+			}
+		}
+		return inProgress;
+	}
+
+	
+	
+	
 	
 	public Long checkprecedantTest (Long idModel){
 		Module m = moduleRepository.findOne(idModel);
@@ -122,7 +158,6 @@ public class ModuleController {
 					return 1;
 
 				}else {
-					System.out.println ("u didn't take the test yet make sure this is the right test ");
 					Long idPrecedentModule = checkprecedantTest(idModule);
 					if (idPrecedentModule != 0) {
 						if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idPrecedentModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
@@ -245,10 +280,7 @@ public class ModuleController {
 		System.out.println("myCpt: " + myCpt);
 		return myCpt;
 	}
-	
-//	public HashMap<String, Integer> getUserResponceMap (Collection<String> MyArrayAnswers){
-//		
-//	}
+
 
 	@PostMapping("/calculScore")
 	public int getScore(@RequestBody Collection<String> MyArrayAnswers) {
@@ -291,5 +323,7 @@ public class ModuleController {
 		System.out.println("votre scrore final : " + score);
 		return score;
 	}
+	
+	
 
 }

@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 
 @Entity
@@ -29,21 +30,41 @@ public class Module {
 	@ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL )
 	private Collection<Quiz> quiz = new ArrayList<>();
 	
+	@OneToMany(cascade = CascadeType.ALL )
+	private Collection<Video> videos = new ArrayList<>();
+
+	
 	
 	public Module() {
 		super();
 	}
-	public Module(Long id, String nom, String duree, int nbr_questions, List<Quiz> quiz , int level ,boolean isTotalQuestions , int minScore) {
+	
+	
+	public Module(Long id, String nom, String duree, int nbr_questions, int level, boolean isTotalQuestions,
+			int minScore, Collection<Quiz> quiz, Collection<Video> videos) {
 		super();
 		this.id = id;
 		this.nom = nom;
 		this.duree = duree;
 		this.nbr_questions = nbr_questions;
-		this.quiz = quiz;
 		this.level = level;
-		this.isTotalQuestions = isTotalQuestions; 
+		this.isTotalQuestions = isTotalQuestions;
 		this.minScore = minScore;
+		this.quiz = quiz;
+		this.videos = videos;
 	}
+
+
+	public Collection<Video> getVideos() {
+		return videos;
+	}
+
+
+	public void setVideos(Collection<Video> videos) {
+		this.videos = videos;
+	}
+
+
 	public Long getId() {
 		return id;
 	}

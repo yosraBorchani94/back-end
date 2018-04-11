@@ -1,5 +1,6 @@
 package org.sid.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sid.dao.VideoRepository;
@@ -42,8 +43,22 @@ public class VideoController {
 		return true ;
 	}
 	@PutMapping("/video/{id}")
-	public Video updateVideo (@PathVariable Long id,@RequestBody Video t) {
-		t.setId(id);
-		return videoRepository.save(t);
+	public Video updateVideo (@PathVariable Long id,@RequestBody Video v) {
+		v.setId(id);
+		return videoRepository.save(v);
 	}
+	
+	@GetMapping("/getVideosByModule/{idModule}")
+	public List<Video> getVideosByModule (@PathVariable Long idModule) {
+		List<Video> video = videoRepository.findAll();
+		List<Video> videosByModule = new ArrayList<>();
+		for (int i = 0; i < video.size(); i++) {
+			if (video.get(i).getModule().getId() == idModule) {
+				videosByModule.add(video.get(i));
+			}
+		}
+		return videosByModule;
+	}
+	
+	
 }
