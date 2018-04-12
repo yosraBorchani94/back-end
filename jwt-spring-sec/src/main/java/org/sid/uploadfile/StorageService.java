@@ -45,12 +45,19 @@ public class StorageService {
 	public void store(MultipartFile file, String username){
 		rootLocation1 =Paths.get("C:/upload/"+username);
 		try {
+			if (!Files.exists(rootLocation)) {
+				Files.createDirectory(rootLocation);
+				}
+			if (!Files.exists(rootLocation1)) {
 			Files.createDirectory(rootLocation1);
+			}
+			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		try {
             Files.copy(file.getInputStream(), this.rootLocation1.resolve(file.getOriginalFilename()));
+           
         } catch (Exception e) {
         	throw new RuntimeException("FAIL!");
         }
@@ -73,6 +80,11 @@ public class StorageService {
     
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
+    }
+    
+    public void deleteFile(String pathFile) {
+    	Path path = Paths.get (pathFile);
+        FileSystemUtils.deleteRecursively(path.toFile());
     }
  
     public void init() {
