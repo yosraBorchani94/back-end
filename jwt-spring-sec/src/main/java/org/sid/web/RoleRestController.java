@@ -45,5 +45,10 @@ public class RoleRestController {
 		roleRepository.delete(id);
 		return true ;
 	}
+	
+	@GetMapping("/findByRoleName/{roleName}")
+	public AppRole getRole(@PathVariable String roleName){
+		return roleRepository.findByRoleName(roleName);
+	}
 
 }
