@@ -39,7 +39,7 @@ import org.sid.uploadfile.StorageService;;
 @RestController
 public class RestUploadController {
 	private static final String FILE_PATH = "C:/upload/";
-
+	private static final String IMAGE_PATH = "C:/Users/yborchani/angular/starter-kit/src/assets/img/UploadImage/";
 	@Autowired
 	StorageService storageService;
 
@@ -64,11 +64,12 @@ public class RestUploadController {
 	public String uploadImage(@RequestParam("uploadfile") MultipartFile file, @PathVariable Long id) throws Exception {
 		try {
 			storageService.storeImage(file, id + "");
-			files.add(file.getOriginalFilename());
-			Quiz q = quizRepository.findOne(id);
-			q.setId(id);
-			q.setUrlPicture(FILE_PATH + id + "/" + file.getOriginalFilename());
-			quizRepository.save(q);
+			if (files.add(file.getOriginalFilename())) {
+				Quiz q = quizRepository.findOne(id);
+				q.setId(id);
+				q.setUrlPicture(IMAGE_PATH + id + "/" + file.getOriginalFilename());
+				quizRepository.save(q);
+			}
 			return "You successfully uploaded - " + file.getOriginalFilename();
 		} catch (Exception e) {
 			throw new Exception("FAIL! Maybe You had uploaded the file before or the file's size > 500KB");
@@ -119,14 +120,14 @@ public class RestUploadController {
 		return lstFiles;
 	}
 
-	/** Download User Files **/
+	/** Download User File **/
 	@GetMapping(value = "/download/{username}/{fileName:.*}")
 	public ResponseEntity<InputStreamResource> download(@PathVariable String username, @PathVariable String fileName)
 			throws IOException {
 		StringTokenizer st = new StringTokenizer(username);
 		String userFile = st.nextToken("@");
 		String fullPath = FILE_PATH + userFile + "/" + fileName;
-		// System.out.println(fullPath);
+	    System.out.println(fullPath);
 		File file = new File(fullPath);
 		HttpHeaders respHeaders = new HttpHeaders();
 		respHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -134,8 +135,26 @@ public class RestUploadController {
 		return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
 
 	}
+	/** Download All User Files **/
+	@GetMapping(value = "/downloadAllUserFile/{username}")
+	public void downloadAllUserFiles(@PathVariable String username)
+			throws IOException {
+		List  <Document> ls = getDocumentsByUser(username);
+		if (ls.size() > 0) {
+			for (int i = 0; i < ls.size(); i++) {
+				System.out.println("username" + username + " ls.get(i).getUsername() " + ls.get(i).getUsername());
+				if (ls.get(i).getUsername().equals(username)) {
+					File file = new File(ls.get(i).getPath());
+					HttpHeaders respHeaders = new HttpHeaders();
+					respHeaders.setContentType(MediaType.APPLICATION_PDF);
+					InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+				}
+			}
+		
+		}
+	}
 
-	/** Download User Files **/
+	/** Download Files By module**/
 	@PostMapping(value = "/downloadFile")
 	public ResponseEntity<InputStreamResource> download(@RequestBody String documentName) throws IOException {
 		Document d = documentRepository.findByDocumentName(documentName);
