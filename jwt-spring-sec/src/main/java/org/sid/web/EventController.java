@@ -1,8 +1,10 @@
 package org.sid.web;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +16,8 @@ import org.sid.dao.UserRepository;
 import org.sid.entities.AcceptedUsers;
 import org.sid.entities.AppUser;
 import org.sid.entities.Event;
+import org.sid.liveBroadcast.Auth;
+import org.sid.liveBroadcast.CreateBroadcast;
 import org.sid.mail.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
@@ -42,22 +46,49 @@ public class EventController {
 	@Autowired
 	private AcceptedUserRepository acceptedUserRepository;
 
+	@Autowired
+	private CreateBroadcast createBroadcast;
+
 	// send the first notification to all users
 	@PostMapping("/event")
-	public void save(@RequestBody Event event) {
-		eventRepository.save(event);
-		List<AppUser> listUsers = userRepository.findAll();
-		for (AppUser user : listUsers) {
-			try {
-				mailService.sendNotificationEvent(user.getUsername(), event);
-			} catch (MailException e) {
-				System.out.println(e);
+	public int save(@RequestBody Event event) {
+		String id = createBroadcast.insert(event);
+		if (id.equals("0"))
+			return 0;
+		else {
+			Event ev = new Event();
+			ev.setTitle(event.getTitle());
+			ev.setBroadcastId("https://www.youtube.com/watch?v=" + id);
+			ev.setStartDate(event.getStartDate());
+			ev.setEndDate(event.getEndDate());
+			if (eventRepository.save(ev) != null) {
+				return 1;
 			}
+			/*if (eventRepository.save(ev) != null) {
+				List<AppUser> listUsers = userRepository.findAll();
+				for (AppUser user : listUsers) {
+					try {
+						mailService.sendNotificationEvent(user.getUsername(), event);
+					} catch (MailException e) {
+						System.out.println(e);
+					}
+				}
+				return 1;
+			}*/
 		}
+		return 0;
+	}
+
+	
+
+	@PutMapping("/event/{id}")
+	public Event update(@PathVariable Long id, @RequestBody Event e) {
+		// createBroadcast.update(e);
+		e.setId(id);
+		return eventRepository.save(e);
 	}
 
 	// send the second notification to accepted event with specific users
-
 	@GetMapping("/eventNotification")
 	public void eventNotification() throws ParseException {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -69,12 +100,12 @@ public class EventController {
 		List<AcceptedUsers> listAcceptedUsers = acceptedUserRepository.findAll();
 		if (listAcceptedUsers.size() > 0) {
 			for (AcceptedUsers accepteduser : listAcceptedUsers) {
-				Event e = eventRepository.findOne(accepteduser.getId_event());
+				Event e = eventRepository.findOne(accepteduser.getIdEvent());
 				String eventDateString = dateFormat.format(e.getStartDate());
 				if ((eventDateString.equals(dateFormat.format(Todaydate)))
 						|| (eventDateString.equals(dateFormat.format(tomorrow)))) {
-					
-					mailService.sendReminderNotificationEvent(accepteduser.getUsername(),e);
+
+					mailService.sendReminderNotificationEvent(accepteduser.getUsername(), e);
 				}
 			}
 		}
@@ -90,16 +121,31 @@ public class EventController {
 		return eventRepository.findOne(id);
 	}
 
-	@PutMapping("/event/{id}")
-	public Event update(@PathVariable Long id, @RequestBody Event t) {
-		t.setId(id);
-		return eventRepository.save(t);
-	}
-
 	@DeleteMapping("/event/{id}")
 	public boolean delete(@PathVariable Long id) {
 		eventRepository.delete(id);
+		List <AcceptedUsers> accAll = acceptedUserRepository.findAll();
+		if (accAll.size() >0) {
+			for (int i = 0; i < accAll.size(); i++) {
+				if (accAll.get(i).getIdEvent() == id) {
+					acceptedUserRepository.delete(accAll.get(i));
+				}
+			}
+		}
 		return true;
+	}
+
+	@GetMapping("getActualEvents")
+	public List<Event> getActualEvents() {
+		List<Event> getActualEvents = new ArrayList<>();
+		Date today = new Date();
+		List<Event> AllEvents = eventRepository.findAll();
+		for (Event event : AllEvents) {
+			if (event.getStartDate().after(today)  || event.getStartDate() == today) {
+				getActualEvents.add(event);
+			}
+		}
+		return getActualEvents;
 	}
 
 }

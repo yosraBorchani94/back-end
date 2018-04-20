@@ -57,6 +57,7 @@ public class VideoController {
 				videosByModule.add(video.get(i));
 			}
 		}
+		
 		return videosByModule;
 	}
 	

@@ -13,16 +13,18 @@ public class Event {
 	private String title;
 	private Date startDate;
 	private Date endDate;
+	private String broadcastId;
 
 	public Event() {
 		super();
 	}
-	public Event(Long id, String title, Date startDate, Date endDate) {
+	public Event(Long id, String title, Date startDate, Date endDate , String broadcastId) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.startDate = startDate;
 		this.endDate = endDate;
+		this.broadcastId = broadcastId;
 	}
 	public Long getId() {
 		return id;
@@ -48,4 +50,12 @@ public class Event {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+	public String getBroadcastId() {
+		return broadcastId;
+	}
+	public void setBroadcastId(String broadcastId) {
+		this.broadcastId = broadcastId;
+	}
+	
+	
 }
