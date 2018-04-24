@@ -8,12 +8,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.sid.dao.AcceptedUserRepository;
 import org.sid.dao.EventRepository;
 import org.sid.dao.UserRepository;
-import org.sid.entities.AcceptedUsers;
 import org.sid.entities.AppUser;
 import org.sid.entities.Event;
 import org.sid.liveBroadcast.Auth;
@@ -42,9 +41,6 @@ public class EventController {
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
-	private AcceptedUserRepository acceptedUserRepository;
 
 	@Autowired
 	private CreateBroadcast createBroadcast;
@@ -83,33 +79,32 @@ public class EventController {
 
 	@PutMapping("/event/{id}")
 	public Event update(@PathVariable Long id, @RequestBody Event e) {
-		// createBroadcast.update(e);
 		e.setId(id);
 		return eventRepository.save(e);
 	}
 
 	// send the second notification to accepted event with specific users
-	@GetMapping("/eventNotification")
-	public void eventNotification() throws ParseException {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date Todaydate = new Date();
-		Calendar c = Calendar.getInstance();
-		c.setTime(Todaydate);
-		c.add(Calendar.DATE, 1);
-		Date tomorrow = c.getTime();
-		List<AcceptedUsers> listAcceptedUsers = acceptedUserRepository.findAll();
-		if (listAcceptedUsers.size() > 0) {
-			for (AcceptedUsers accepteduser : listAcceptedUsers) {
-				Event e = eventRepository.findOne(accepteduser.getIdEvent());
-				String eventDateString = dateFormat.format(e.getStartDate());
-				if ((eventDateString.equals(dateFormat.format(Todaydate)))
-						|| (eventDateString.equals(dateFormat.format(tomorrow)))) {
-
-					mailService.sendReminderNotificationEvent(accepteduser.getUsername(), e);
-				}
-			}
-		}
-	}
+//	@GetMapping("/eventNotification")
+//	public void eventNotification() throws ParseException {
+//		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//		Date Todaydate = new Date();
+//		Calendar c = Calendar.getInstance();
+//		c.setTime(Todaydate);
+//		c.add(Calendar.DATE, 1);
+//		Date tomorrow = c.getTime();
+//		List<AcceptedUsers> listAcceptedUsers = acceptedUserRepository.findAll();
+//		if (listAcceptedUsers.size() > 0) {
+//			for (AcceptedUsers accepteduser : listAcceptedUsers) {
+//				Event e = eventRepository.findOne(accepteduser.getIdEvent());
+//				String eventDateString = dateFormat.format(e.getStartDate());
+//				if ((eventDateString.equals(dateFormat.format(Todaydate)))
+//						|| (eventDateString.equals(dateFormat.format(tomorrow)))) {
+//
+//					mailService.sendReminderNotificationEvent(accepteduser.getUsername(), e);
+//				}
+//			}
+//		}
+//	}
 
 	@GetMapping("/event")
 	public List<Event> listEvents() {
@@ -122,17 +117,13 @@ public class EventController {
 	}
 
 	@DeleteMapping("/event/{id}")
-	public boolean delete(@PathVariable Long id) {
-		eventRepository.delete(id);
-		List <AcceptedUsers> accAll = acceptedUserRepository.findAll();
-		if (accAll.size() >0) {
-			for (int i = 0; i < accAll.size(); i++) {
-				if (accAll.get(i).getIdEvent() == id) {
-					acceptedUserRepository.delete(accAll.get(i));
-				}
-			}
-		}
-		return true;
+	public void delete(@PathVariable Long id) {
+		Event e = eventRepository.findOne(id);
+		if (e.getUser().size() > 0 ) {
+			 Iterator<AppUser> iterator = e.getUser().iterator();
+                     e.getUser().clear();
+			 }
+		 eventRepository.delete(id);
 	}
 
 	@GetMapping("getActualEvents")
