@@ -1,6 +1,8 @@
 package org.sid.entities;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -14,17 +16,21 @@ public class Event {
 	private Date startDate;
 	private Date endDate;
 	private String broadcastId;
+	
+	@ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL )
+	private Set<AppUser> user = new HashSet<>();
 
 	public Event() {
 		super();
 	}
-	public Event(Long id, String title, Date startDate, Date endDate , String broadcastId) {
+	public Event(Long id, String title, Date startDate, Date endDate , String broadcastId ,  Set<AppUser> user) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.broadcastId = broadcastId;
+		this.user = user ;
 	}
 	public Long getId() {
 		return id;
@@ -56,6 +62,14 @@ public class Event {
 	public void setBroadcastId(String broadcastId) {
 		this.broadcastId = broadcastId;
 	}
+	public Set<AppUser> getUser() {
+		return user;
+	}
+	public void setUser(Set<AppUser> user) {
+		this.user = user;
+	}
+	
+	
 	
 	
 }

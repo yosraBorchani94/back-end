@@ -19,15 +19,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import org.sid.dao.DocumentRepository;
 import org.sid.dao.ModuleInstanceRepository;
 import org.sid.dao.ModuleRepository;
 import org.sid.dao.QuizRepository;
 import org.sid.dao.UserRepository;
 import org.sid.entities.AppUser;
+import org.sid.entities.Document;
 import org.sid.entities.Module;
 import org.sid.entities.ModuleInstance;
 import org.sid.entities.Quiz;
 import org.sid.services.ModuleService;
+import org.sid.uploadfile.RestUploadController;
 
 @RestController
 @CrossOrigin("*")
@@ -49,6 +53,13 @@ public class ModuleController {
 	@Autowired
 	private ModuleInstanceRepository moduleInstanceRepository;
 	
+	@Autowired
+	private DocumentRepository documentRepository;
+	
+
+	@Autowired
+	private 	RestUploadController uploadCtrl ;
+	 
 	@PostMapping("/module")
 	public Module addModule(@RequestBody Module module) {
 		int minScore = (module.getNbr_questions() * 60)/100;
@@ -70,6 +81,14 @@ public class ModuleController {
 
 	@DeleteMapping("/module/{id}")
 	public boolean delete(@PathVariable Long id) {
+
+		List <Document> listDocument = documentRepository.findAll();
+		for (int i = 0; i < listDocument.size(); i++) {
+			if (listDocument.get(i).getModule().getId() == id) {
+				System.out.println("trouve =>  delete document id " + listDocument.get(i).getId());
+				uploadCtrl.deleteUserFile (listDocument.get(i).getId());
+			}
+		}
 		moduleRepository.delete(id);
 		return true;
 	}
@@ -141,26 +160,29 @@ public class ModuleController {
 
 	@PostMapping (value ="/checkPassTheTest/{idModule}")
 	public int checkPassTheTest (@PathVariable Long idModule, @RequestBody String username) {
-	
+		
+
+	    
 		AppUser user = UserRepository.findByUsername(username);
 		Module m = moduleRepository.findOne(idModule);
-		System.out.println("user : " +user.getId() + " module :" + m.getId() + " Minscore :"+m.getMinScore());
+		
+		
 		List <ModuleInstance> ModuleByUser = moduleInstanceRepository.findAll();
 		if (ModuleByUser.size() > 0) {
 			for (int i = 0; i < ModuleByUser.size(); i++) {
-				System.out.println ("idUser " + ModuleByUser.get(i).getIdUser() + " idModule:  "+ModuleByUser.get(i).getIdModule() + " score : "+ModuleByUser.get(i).getScore());
-				if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
+
+				if ((ModuleByUser.get(i).getUser().getId() == user.getId())&&(ModuleByUser.get(i).getModule().getId() == idModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
 					System.out.println("you succeded  "+ m.getLevel());
 					return 0;
 				}
-				else if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idModule) && (ModuleByUser.get(i).getScore() <  m.getMinScore())){
+				else if ((ModuleByUser.get(i).getUser().getId() == user.getId()) &&(ModuleByUser.get(i).getModule().getId() == idModule) && (ModuleByUser.get(i).getScore() <  m.getMinScore())){
 					System.out.println ("try again this Test");
 					return 1;
 
 				}else {
 					Long idPrecedentModule = checkprecedantTest(idModule);
 					if (idPrecedentModule != 0) {
-						if ((ModuleByUser.get(i).getIdUser() == user.getId())&&(ModuleByUser.get(i).getIdModule() == idPrecedentModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
+						if ((ModuleByUser.get(i).getUser().getId() == user.getId())&&(ModuleByUser.get(i).getModule().getId() == idPrecedentModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
 							System.out.println ("u succeded the precedent exam u can take this level now ");
 							return 2;
 						}else {

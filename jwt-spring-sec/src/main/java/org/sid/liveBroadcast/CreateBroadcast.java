@@ -42,7 +42,7 @@ public class CreateBroadcast {
 			Credential credential = Auth.authorize(scopes, "createbroadcast");
 			
 			// This object is used to make YouTube Data API requests.
-		
+		    System.out.println("credential " +credential);
 			youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, credential)
 					.setApplicationName("youtube-cmdline-createbroadcast-sample").build();
 		

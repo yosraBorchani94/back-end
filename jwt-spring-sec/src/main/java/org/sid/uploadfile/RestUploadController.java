@@ -29,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sid.dao.DocumentRepository;
 import org.sid.dao.ModuleRepository;
 import org.sid.dao.QuizRepository;
+import org.sid.dao.UserRepository;
+import org.sid.entities.AppUser;
 import org.sid.entities.Document;
 import org.sid.entities.Module;
 import org.sid.entities.Quiz;
@@ -50,8 +52,12 @@ public class RestUploadController {
 	private DocumentRepository documentRepository;
 
 	@Autowired
-	QuizRepository quizRepository;
+	private QuizRepository quizRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+
+	
 	List<String> files = new ArrayList<String>();
 
 	@GetMapping("/document")
@@ -77,20 +83,21 @@ public class RestUploadController {
 	}
 
 	/* Multiple file upload */
-	@PostMapping(value = "/uploadfile/{username}")
+	@PostMapping(value = "/uploadfile")
 	public String uploadFileMulti(@RequestParam("uploadfile") MultipartFile file,
-			@RequestParam("idModule") Long idModule, @PathVariable String username) throws Exception {
+			@RequestParam("idModule") Long idModule, @RequestParam("username")  String username) throws Exception {
 
 		try {
-
+			System.out.println(username);
+			AppUser user = userRepository.findByUsername(username);
 			StringTokenizer st = new StringTokenizer(username);
 			String userFile = st.nextToken("@");
-
 			Module m = moduleRepository.findOne(idModule);
 			Document d = new Document();
 			d.setModule(m);
 			d.setDocumentName(file.getOriginalFilename());
-			d.setUsername(username);
+			d.setUser(user);
+			d.setAccpetd(true);
 			d.setPath(FILE_PATH + userFile + "/" + file.getOriginalFilename());
 			if (documentRepository.save(d) != null) {
 				storageService.store(file, userFile);
@@ -127,7 +134,7 @@ public class RestUploadController {
 		StringTokenizer st = new StringTokenizer(username);
 		String userFile = st.nextToken("@");
 		String fullPath = FILE_PATH + userFile + "/" + fileName;
-	    System.out.println(fullPath);
+		System.out.println(fullPath);
 		File file = new File(fullPath);
 		HttpHeaders respHeaders = new HttpHeaders();
 		respHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -135,26 +142,27 @@ public class RestUploadController {
 		return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
 
 	}
+
 	/** Download All User Files **/
 	@GetMapping(value = "/downloadAllUserFile/{username}")
-	public void downloadAllUserFiles(@PathVariable String username)
-			throws IOException {
-		List  <Document> ls = getDocumentsByUser(username);
+	public void downloadAllUserFiles(@PathVariable String username) throws IOException {
+		AppUser user = userRepository.findByUsername(username);
+		List<Document> ls = getDocumentsByUser(username);
 		if (ls.size() > 0) {
 			for (int i = 0; i < ls.size(); i++) {
-				System.out.println("username" + username + " ls.get(i).getUsername() " + ls.get(i).getUsername());
-				if (ls.get(i).getUsername().equals(username)) {
+				System.out.println("username " + username + " ls.getUser().getId() " + ls.get(i).getUser().getId());
+				if (ls.get(i).getUser().getId() == user.getId()) {
 					File file = new File(ls.get(i).getPath());
 					HttpHeaders respHeaders = new HttpHeaders();
 					respHeaders.setContentType(MediaType.APPLICATION_PDF);
 					InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
 				}
 			}
-		
+
 		}
 	}
 
-	/** Download Files By module**/
+	/** Download Files By module **/
 	@PostMapping(value = "/downloadFile")
 	public ResponseEntity<InputStreamResource> download(@RequestBody String documentName) throws IOException {
 		Document d = documentRepository.findByDocumentName(documentName);
@@ -168,15 +176,13 @@ public class RestUploadController {
 
 	@PostMapping(value = "/getDocumentsByModuleByUser/{id}")
 	public List<String> getDocumentsByModuleByUser(@PathVariable Long id, @RequestBody String username) {
+		
 		List<Document> lisDoc = documentRepository.findAll();
 		List<String> docByModuleAndUser = new ArrayList<>();
-		StringTokenizer st1 = new StringTokenizer(username);
-		String user1 = st1.nextToken("@");
+		AppUser user = userRepository.findByUsername(username);
 		if (lisDoc.size() > 0) {
 			for (int i = 0; i < lisDoc.size(); i++) {
-				StringTokenizer st2 = new StringTokenizer(lisDoc.get(i).getUsername());
-				String user2 = st2.nextToken("@");
-				if ((user1.equals(user2)) && (lisDoc.get(i).getModule().getId() == id)) {
+				if ((lisDoc.get(i).getUser().getId() == user.getId()) && (lisDoc.get(i).getModule().getId() == id)) {
 					docByModuleAndUser.add(lisDoc.get(i).getDocumentName());
 				}
 			}
@@ -217,14 +223,11 @@ public class RestUploadController {
 	@PostMapping(value = "/findDocumentByUseName")
 	public List<Document> getDocumentsByUser(@RequestBody String username) {
 		List<Document> lisDoc = documentRepository.findAll();
+		AppUser user = userRepository.findByUsername(username);
 		List<Document> docByUser = new ArrayList<>();
-		StringTokenizer st1 = new StringTokenizer(username);
-		String user1 = st1.nextToken("@");
 		if (lisDoc.size() > 0) {
 			for (int i = 0; i < lisDoc.size(); i++) {
-				StringTokenizer st2 = new StringTokenizer(lisDoc.get(i).getUsername());
-				String user2 = st2.nextToken("@");
-				if (user1.equals(user2)) {
+				if (lisDoc.get(i).getId() == user.getId()) {
 					docByUser.add(lisDoc.get(i));
 				}
 			}

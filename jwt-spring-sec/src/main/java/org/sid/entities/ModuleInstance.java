@@ -3,10 +3,12 @@ package org.sid.entities;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 
@@ -15,8 +17,15 @@ public class ModuleInstance {
 	@Id
 	@GeneratedValue
 	private Long id;
-	private Long idModule;
-	private Long idUser;
+	
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Module module;
+	
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	private AppUser user; 
+	
 	private int score;
 
 	@OneToMany (fetch = FetchType.EAGER )
@@ -30,11 +39,11 @@ public class ModuleInstance {
 	
 
 
-	public ModuleInstance(Long id, Long idModule, Long idUser, int score, Collection<QuizInstance> quizInstance) {
+	public ModuleInstance(Long id, Module module, AppUser user, int score, Collection<QuizInstance> quizInstance) {
 		super();
 		this.id = id;
-		this.idModule = idModule;
-		this.idUser = idUser;
+		this.module = module;
+		this.user = user;
 		this.score = score;
 		this.quizInstance = quizInstance;
 		
@@ -53,40 +62,37 @@ public class ModuleInstance {
 	}
 
 
-	public Long getIdModule() {
-		return idModule;
+	public Module getModule() {
+		return module;
 	}
 
 
-	public void setIdModule(Long idModule) {
-		this.idModule = idModule;
+	public void setModule(Module module) {
+		this.module = module;
 	}
 
 
-	public Long getIdUser() {
-		return idUser;
+
+
+	public AppUser getUser() {
+		return user;
 	}
 
-
-	public void setIdUser(Long idUser) {
-		this.idUser = idUser;
+	public void setUser(AppUser user) {
+		this.user = user;
 	}
-
 
 	public int getScore() {
 		return score;
 	}
 
-
 	public void setScore(int score) {
 		this.score = score;
 	}
 
-
 	public Collection<QuizInstance> getQuizInstance() {
 		return quizInstance;
 	}
-
 
 	public void setQuizInstance(Collection<QuizInstance> quizInstance) {
 		this.quizInstance = quizInstance;

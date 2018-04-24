@@ -1,6 +1,7 @@
 package org.sid.entities;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 @Entity
 public class AppUser {
@@ -23,18 +25,24 @@ public class AppUser {
 	private String password;
 	
 	@ManyToMany(fetch = FetchType.EAGER )
-	private Collection<AppRole> roles = new ArrayList<>();
+	private Set<AppRole> roles =new HashSet<AppRole>();
 
+	@OneToMany (fetch = FetchType.EAGER , cascade = CascadeType.ALL )
+	private Set<Document> document  = new HashSet<Document>();
+	
+	@OneToMany (fetch = FetchType.EAGER , cascade = CascadeType.ALL )
+	private Set<ModuleInstance> moduleInstance  = new HashSet<ModuleInstance>();
+	
 	public AppUser() {
 		super();
 	}
-	public AppUser(Long id ,String username, String password, Collection<AppRole> roles) {
+	public AppUser(Long id ,String username, String password, Set<AppRole> roles ,Set<ModuleInstance> moduleInstance) {
 		super();
 		this.id=id;
 		this.username = username;
 		this.password = password;
 		this.roles = roles;
-
+		this.moduleInstance = moduleInstance;
 	}
 
 	public Long getId() {
@@ -61,12 +69,26 @@ public class AppUser {
 		this.password = password;
 	}
 
-	public Collection<AppRole> getRoles() {
+	public Set<AppRole> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Collection<AppRole> roles) {
+	public void setRoles(Set<AppRole> roles) {
 		this.roles = roles;
 	}
+	public Set<Document> getDocument() {
+		return document;
+	}
+	public void setDocument(Set<Document> document) {
+		this.document = document;
+	}
+	public Set<ModuleInstance> getModuleInstance() {
+		return moduleInstance;
+	}
+	public void setModuleInstance(Set<ModuleInstance> moduleInstance) {
+		this.moduleInstance = moduleInstance;
+	}
+	
+	
 
 }
