@@ -109,6 +109,35 @@ public class RestUploadController {
 			throw new Exception("FAIL! Maybe You had uploaded the file before or the file's size > 500KB");
 		}
 	}
+	
+	
+	@PostMapping(value = "/uploadUserfile")
+	public String uploadUserfile(@RequestParam("uploadfile") MultipartFile file,
+			@RequestParam("idModule") Long idModule, @RequestParam("username")  String username) throws Exception {
+
+		try {
+			System.out.println(username);
+			AppUser user = userRepository.findByUsername(username);
+			StringTokenizer st = new StringTokenizer(username);
+			String userFile = st.nextToken("@");
+			Module m = moduleRepository.findOne(idModule);
+			Document d = new Document();
+			d.setModule(m);
+			d.setDocumentName(file.getOriginalFilename());
+			d.setUser(user);
+			d.setAccpetd(false);
+			d.setPath(FILE_PATH + userFile + "/" + file.getOriginalFilename());
+			if (documentRepository.save(d) != null) {
+				storageService.store(file, userFile);
+				files.add(file.getOriginalFilename());
+			}
+
+			return "You successfully uploaded - " + file.getOriginalFilename();
+		} catch (Exception e) {
+			throw new Exception("FAIL! Maybe You had uploaded the file before or the file's size > 500KB");
+		}
+	}
+
 
 	/* List of Files in directory */
 	@GetMapping(value = "/getallfiles/{username}")
@@ -182,7 +211,7 @@ public class RestUploadController {
 		AppUser user = userRepository.findByUsername(username);
 		if (lisDoc.size() > 0) {
 			for (int i = 0; i < lisDoc.size(); i++) {
-				if ((lisDoc.get(i).getUser().getId() == user.getId()) && (lisDoc.get(i).getModule().getId() == id)) {
+				if ((lisDoc.get(i).getUser().getId() == user.getId()) && (lisDoc.get(i).getModule().getId() == id) && (lisDoc.get(i).isAccpetd())) {
 					docByModuleAndUser.add(lisDoc.get(i).getDocumentName());
 				}
 			}
@@ -197,7 +226,7 @@ public class RestUploadController {
 		List<String> docByModule = new ArrayList<>();
 		if (lisDoc.size() > 0) {
 			for (int i = 0; i < lisDoc.size(); i++) {
-				if (lisDoc.get(i).getModule().getId() == id) {
+				if ((lisDoc.get(i).getModule().getId()) == id && (lisDoc.get(i).isAccpetd())) {
 					docByModule.add(lisDoc.get(i).getDocumentName());
 				}
 			}
@@ -219,6 +248,20 @@ public class RestUploadController {
 		Document d = documentRepository.findByDocumentName(fileName);
 		return d;
 	}
+	
+	
+	
+	@PostMapping(value = "/AcceptDocument")
+	public void AcceptDocument(@RequestBody Document doc) {
+		doc.setAccpetd(true);
+		documentRepository.save(doc);
+	}
+	
+	
+	@DeleteMapping(value = "/RefuseDocument/{id}")
+	public void AcceptDocument(@PathVariable Long id) {
+		documentRepository.delete(id);
+	}
 
 	@PostMapping(value = "/findDocumentByUseName")
 	public List<Document> getDocumentsByUser(@RequestBody String username) {
@@ -234,5 +277,21 @@ public class RestUploadController {
 			return docByUser;
 		}
 		return docByUser;
+	}
+	
+	
+	@GetMapping(value = "/getNonAcceptedDocuments")
+	public List<Document> getNonAcceptedDocuments() {
+		List<Document> lisDoc = documentRepository.findAll();
+		List<Document>NonAcceptedDocuments = new ArrayList<>();
+		if (lisDoc.size() > 0) {
+			for (int i = 0; i < lisDoc.size(); i++) {
+				if (!lisDoc.get(i).isAccpetd()) {
+					NonAcceptedDocuments.add(lisDoc.get(i));
+				}
+			}
+			return NonAcceptedDocuments;
+		}
+		return NonAcceptedDocuments;
 	}
 }

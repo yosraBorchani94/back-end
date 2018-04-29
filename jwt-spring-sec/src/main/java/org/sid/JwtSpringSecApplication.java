@@ -36,7 +36,7 @@ public class JwtSpringSecApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... arg0) throws Exception {
-
+        
 		//storageService.deleteAll();
 		//storageService.init();
 	    /*accountService.saveUser(new AppUser(null,"admin","1234","ADMIN ROLE"));

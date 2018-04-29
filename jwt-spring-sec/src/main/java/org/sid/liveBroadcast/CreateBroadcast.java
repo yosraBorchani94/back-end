@@ -32,17 +32,17 @@ public class CreateBroadcast {
 		// authenticated user's account.
 		
 		List<String> scopes = Lists.newArrayList("https://www.googleapis.com/auth/youtube");
-	
+	    String token = "";
 		
 		try {
 
 			// Authorize the request.
 		
 		
-			Credential credential = Auth.authorize(scopes, "createbroadcast");
+			 Credential credential = Auth.authorize(scopes, "createbroadcast");
 			
 			// This object is used to make YouTube Data API requests.
-		    System.out.println("credential " +credential);
+		    
 			youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, credential)
 					.setApplicationName("youtube-cmdline-createbroadcast-sample").build();
 		

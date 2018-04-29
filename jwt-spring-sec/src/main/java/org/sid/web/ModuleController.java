@@ -23,13 +23,17 @@ import java.util.StringTokenizer;
 import org.sid.dao.DocumentRepository;
 import org.sid.dao.ModuleInstanceRepository;
 import org.sid.dao.ModuleRepository;
+import org.sid.dao.QuizInstanceRepository;
 import org.sid.dao.QuizRepository;
 import org.sid.dao.UserRepository;
+import org.sid.dao.VideoRepository;
 import org.sid.entities.AppUser;
 import org.sid.entities.Document;
 import org.sid.entities.Module;
 import org.sid.entities.ModuleInstance;
 import org.sid.entities.Quiz;
+import org.sid.entities.QuizInstance;
+import org.sid.entities.Video;
 import org.sid.services.ModuleService;
 import org.sid.uploadfile.RestUploadController;
 
@@ -46,23 +50,28 @@ public class ModuleController {
 
 	@Autowired
 	private QuizRepository quizRepository;
-	
-	@Autowired
-	private UserRepository UserRepository;
-	
-	@Autowired
-	private ModuleInstanceRepository moduleInstanceRepository;
-	
-	@Autowired
-	private DocumentRepository documentRepository;
-	
 
 	@Autowired
-	private 	RestUploadController uploadCtrl ;
-	 
+	private UserRepository UserRepository;
+
+	@Autowired
+	private ModuleInstanceRepository moduleInstanceRepository;
+
+	@Autowired
+	private DocumentRepository documentRepository;
+
+	@Autowired
+	private QuizInstanceRepository quizInstanceRepository;
+
+	@Autowired
+	private RestUploadController uploadCtrl;
+
+	@Autowired
+	private VideoRepository videoRepository;
+
 	@PostMapping("/module")
 	public Module addModule(@RequestBody Module module) {
-		int minScore = (module.getNbr_questions() * 60)/100;
+		int minScore = (module.getNbr_questions() * 60) / 100;
 		module.setMinScore(minScore);
 		return moduleRepository.save(module);
 	}
@@ -71,24 +80,61 @@ public class ModuleController {
 	public List<Module> listModules() {
 		return moduleRepository.findAll();
 	}
-	
+
 	@GetMapping("/getModulesSorted")
-	public List<Module> getModulesSorted () {
+	public List<Module> getModulesSorted() {
 		List<Module> listModule = moduleRepository.findAll();
-		listModule.sort(Comparator.comparing(Module:: getLevel));
+		listModule.sort(Comparator.comparing(Module::getLevel));
 		return listModule;
 	}
 
 	@DeleteMapping("/module/{id}")
 	public boolean delete(@PathVariable Long id) {
 
-		List <Document> listDocument = documentRepository.findAll();
-		for (int i = 0; i < listDocument.size(); i++) {
-			if (listDocument.get(i).getModule().getId() == id) {
-				System.out.println("trouve =>  delete document id " + listDocument.get(i).getId());
-				uploadCtrl.deleteUserFile (listDocument.get(i).getId());
+		/*** delete document ***/
+		List<Document> listDocument = documentRepository.findAll();
+		if (listDocument.size() > 0) {
+			for (int i = 0; i < listDocument.size(); i++) {
+				if (listDocument.get(i).getModule().getId() == id) {
+					uploadCtrl.deleteUserFile(listDocument.get(i).getId());
+				}
+			}
+
+		}
+		/*** delete video ***/
+
+		List<Video> videos = videoRepository.findAll();
+		if (videos.size() > 0) {
+			for (int i = 0; i < videos.size(); i++) {
+				if (videos.get(i).getModule().getId() == id) {
+					videoRepository.delete(videos.get(i).getId());
+				}
+			}
+
+		}
+		/**** delete module instance ****/
+		List<ModuleInstance> moduleInstance = moduleInstanceRepository.findAll();
+		if (moduleInstance.size() > 0) {
+			for (int i = 0; i < moduleInstance.size(); i++) {
+				if (moduleInstance.get(i).getModule().getId() == id) {
+
+					/**** delete Quiz instance ****/
+					List<QuizInstance> quizInstance = quizInstanceRepository.findAll();
+					if (quizInstance.size() > 0) {
+						for (int j = 0; j < quizInstance.size(); j++) {
+							if (quizInstance.get(j).getModuleInstance().getId() == moduleInstance.get(i).getId()) {
+								quizInstanceRepository.delete(quizInstance.get(j).getId());
+							}
+						}
+					}
+					moduleInstanceRepository.delete(moduleInstance.get(i).getId());
+				}
 			}
 		}
+		
+		/*** delete Quiz **/ 
+		
+		
 		moduleRepository.delete(id);
 		return true;
 	}
@@ -97,7 +143,7 @@ public class ModuleController {
 	public Module getModule(@PathVariable Long id) {
 		return moduleRepository.findOne(id);
 	}
-	
+
 	@GetMapping("/getModuleByName/{nom}")
 	public Module getModuleName(@PathVariable String nom) {
 		return moduleRepository.findByNom(nom);
@@ -106,87 +152,85 @@ public class ModuleController {
 	@PutMapping("/module/{id}")
 	public Module updateModule(@PathVariable Long id, @RequestBody Module m) {
 		m.setId(id);
-		int minScore = (m.getNbr_questions() * 60)/100;
+		int minScore = (m.getNbr_questions() * 60) / 100;
 		m.setMinScore(minScore);
 		return moduleRepository.save(m);
 	}
-	
+
 	@GetMapping("/actifModule")
 	public List<Module> getActifModule() {
 		List<Module> listModule = moduleRepository.findAll();
 		List<Module> listModuleActif = new ArrayList<>();
 		for (int i = 0; i < listModule.size(); i++) {
-			if(listModule.get(i).isTotalQuestions()) {
+			if (listModule.get(i).isTotalQuestions()) {
 				listModuleActif.add(listModule.get(i));
 			}
 		}
 		return listModuleActif;
 	}
-	
+
 	@GetMapping("/inProgressModule")
 	public List<InProgressModuleForm> getInProgressModule() {
 		List<Module> listModule = moduleRepository.findAll();
-		List<InProgressModuleForm> inProgress  = new ArrayList<>();
-		int questionsLeft =0;
+		List<InProgressModuleForm> inProgress = new ArrayList<>();
+		int questionsLeft = 0;
 		for (int i = 0; i < listModule.size(); i++) {
-			if(!listModule.get(i).isTotalQuestions()) {	
+			if (!listModule.get(i).isTotalQuestions()) {
 				InProgressModuleForm e = new InProgressModuleForm();
-				questionsLeft = listModule.get(i).getNbr_questions() - listModule.get(i).getQuiz().size() ;
-                e.setModule(listModule.get(i));
-                e.setQuestionsLeft(questionsLeft);
+				questionsLeft = listModule.get(i).getNbr_questions() - listModule.get(i).getQuiz().size();
+				e.setModule(listModule.get(i));
+				e.setQuestionsLeft(questionsLeft);
 				inProgress.add(e);
 			}
 		}
 		return inProgress;
 	}
 
-	
-	
-	
-	
-	public Long checkprecedantTest (Long idModel){
+	public Long checkprecedantTest(Long idModel) {
 		Module m = moduleRepository.findOne(idModel);
-		System.out.println (" the Module you are about to pass is : " + m.getLevel());
-		if ( m.getLevel() > 1 ) {
-			int precedentLevel =  m.getLevel()-1;
-			System.out.println ("the precedent Module level : " + precedentLevel);
+		System.out.println(" the Module you are about to pass is : " + m.getLevel());
+		if (m.getLevel() > 1) {
+			int precedentLevel = m.getLevel() - 1;
+			System.out.println("the precedent Module level : " + precedentLevel);
 			Module ml = moduleRepository.findByLevel(precedentLevel);
-			System.out.println (" the precedent Module id" + ml.getId()); 
-			return  ml.getId();
+			System.out.println(" the precedent Module id" + ml.getId());
+			return ml.getId();
 		}
 		return (long) 0;
-		 
+
 	}
 
-	@PostMapping (value ="/checkPassTheTest/{idModule}")
-	public int checkPassTheTest (@PathVariable Long idModule, @RequestBody String username) {
-		
+	@PostMapping(value = "/checkPassTheTest/{idModule}")
+	public int checkPassTheTest(@PathVariable Long idModule, @RequestBody String username) {
 
-	    
 		AppUser user = UserRepository.findByUsername(username);
 		Module m = moduleRepository.findOne(idModule);
-		
-		
-		List <ModuleInstance> ModuleByUser = moduleInstanceRepository.findAll();
+
+		List<ModuleInstance> ModuleByUser = moduleInstanceRepository.findAll();
 		if (ModuleByUser.size() > 0) {
 			for (int i = 0; i < ModuleByUser.size(); i++) {
 
-				if ((ModuleByUser.get(i).getUser().getId() == user.getId())&&(ModuleByUser.get(i).getModule().getId() == idModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
-					System.out.println("you succeded  "+ m.getLevel());
+				if ((ModuleByUser.get(i).getUser().getId() == user.getId())
+						&& (ModuleByUser.get(i).getModule().getId() == idModule)
+						&& (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
+					System.out.println("you succeded  " + m.getLevel());
 					return 0;
-				}
-				else if ((ModuleByUser.get(i).getUser().getId() == user.getId()) &&(ModuleByUser.get(i).getModule().getId() == idModule) && (ModuleByUser.get(i).getScore() <  m.getMinScore())){
-					System.out.println ("try again this Test");
+				} else if ((ModuleByUser.get(i).getUser().getId() == user.getId())
+						&& (ModuleByUser.get(i).getModule().getId() == idModule)
+						&& (ModuleByUser.get(i).getScore() < m.getMinScore())) {
+					System.out.println("try again this Test");
 					return 1;
 
-				}else {
+				} else {
 					Long idPrecedentModule = checkprecedantTest(idModule);
 					if (idPrecedentModule != 0) {
-						if ((ModuleByUser.get(i).getUser().getId() == user.getId())&&(ModuleByUser.get(i).getModule().getId() == idPrecedentModule) && (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
-							System.out.println ("u succeded the precedent exam u can take this level now ");
+						if ((ModuleByUser.get(i).getUser().getId() == user.getId())
+								&& (ModuleByUser.get(i).getModule().getId() == idPrecedentModule)
+								&& (ModuleByUser.get(i).getScore() >= m.getMinScore())) {
+							System.out.println("u succeded the precedent exam u can take this level now ");
 							return 2;
-						}else {
-							System.out.println ("u need to pass the precedent Module before taking this exam ");
+						} else {
+							System.out.println("u need to pass the precedent Module before taking this exam ");
 							return 3;
 						}
 					}
@@ -195,9 +239,9 @@ public class ModuleController {
 		}
 		return 4;
 	}
-	
+
 	@GetMapping("/checkNumberOfQuestions/{id}")
-	public boolean checkNumberOfQuestions ( Long id) {
+	public boolean checkNumberOfQuestions(Long id) {
 		Module m = moduleRepository.findOne(id);
 		List<Quiz> listQuiz = getAllQuestionFromModule(id);
 		if (listQuiz.size() >= m.getNbr_questions()) {
@@ -205,7 +249,6 @@ public class ModuleController {
 		}
 		return false;
 	}
-
 
 	@GetMapping("/getAllQuestionFromModule/{id}")
 	public List<Quiz> getAllQuestionFromModule(@PathVariable Long id) {
@@ -245,9 +288,6 @@ public class ModuleController {
 		}
 		return listQuestionshuffle;
 	}
-	
-	
-	
 
 	public int numberOfCorrectAnswers(Long id) {
 		int cpt = 0;
@@ -303,10 +343,9 @@ public class ModuleController {
 		return myCpt;
 	}
 
-
 	@PostMapping("/calculScore")
 	public int getScore(@RequestBody Collection<String> MyArrayAnswers) {
-		
+
 		// clear hash map
 		hmapQuestion.clear();
 		int myCpt, cpt;
@@ -345,7 +384,5 @@ public class ModuleController {
 		System.out.println("votre scrore final : " + score);
 		return score;
 	}
-	
-	
 
 }

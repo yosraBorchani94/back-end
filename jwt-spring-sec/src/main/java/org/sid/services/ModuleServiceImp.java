@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.sid.dao.ModuleRepository;
 import org.sid.dao.QuizRepository;
+import org.sid.entities.AppUser;
 import org.sid.entities.Module;
 import org.sid.entities.Quiz;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,18 @@ public class ModuleServiceImp implements ModuleService {
 			return false;
 		}
 		return false;
+	}
+
+	@Override
+	public void deleteModule(Long idModule) {
+		Module module = moduleRepository.findOne(idModule);
+		if (module.getQuiz().size() > 0) {
+			for (Iterator<Quiz> iterator = module.getQuiz().iterator(); iterator.hasNext();) {
+			 quizRepository.delete(iterator.next().getId());
+			 
+			}
+			module.getQuiz().clear();
+		}
+
 	}
 }
