@@ -12,7 +12,7 @@ public class ContactUs {
 	@GeneratedValue
 	private Long id;
 	private String Message;
-	private String documentPath;
+
 	@ManyToOne (fetch=FetchType.EAGER)
 	private AppUser user;
 	
@@ -20,11 +20,10 @@ public class ContactUs {
 	public ContactUs() {
 		super();
 	}
-	public ContactUs(Long id, String message, String documentPath, AppUser user) {
+	public ContactUs(Long id, String message, AppUser user) {
 		super();
 		this.id = id;
 		Message = message;
-		this.documentPath = documentPath;
 		this.user = user;
 	}
 	public Long getId() {
@@ -38,12 +37,6 @@ public class ContactUs {
 	}
 	public void setMessage(String message) {
 		Message = message;
-	}
-	public String getDocumentPath() {
-		return documentPath;
-	}
-	public void setDocumentPath(String documentPath) {
-		this.documentPath = documentPath;
 	}
 	public AppUser getUser() {
 		return user;

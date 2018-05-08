@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,35 @@ public class ModuleController {
 		int minScore = (module.getNbr_questions() * 60) / 100;
 		module.setMinScore(minScore);
 		return moduleRepository.save(module);
+	}
+	
+	
+	
+	@PostMapping("/getScoreModuleByUser")
+	public Set<ScoreUsersForm> getScoreModuleByUser(@RequestBody String username) {
+		Set<ScoreUsersForm> listMIF = new HashSet<>();
+		AppUser user = UserRepository.findByUsername(username);
+		List<ModuleInstance> listMI = moduleInstanceRepository.findAll();
+		for(int i =0 ; i< listMI.size() ; i++ ) {
+			if (listMI.get(i).getUser().getId() == user.getId()) {
+				Module m = moduleRepository.findOne(listMI.get(i).getModule().getId());
+				ScoreUsersForm sf = new ScoreUsersForm();
+				sf.setModule(m.getNom());
+				sf.setMinScore(m.getMinScore());
+				sf.setScore(listMI.get(i).getScore());
+				listMIF.add(sf);
+			}
+			
+		}
+	
+		return listMIF;
+	}
+	
+	
+	@GetMapping("/getScoreModuleAllUser")
+	public List<ModuleInstance> getScoreModuleAllUser() {
+		return  moduleInstanceRepository.findAll();
+		
 	}
 
 	@GetMapping("/module")

@@ -36,15 +36,15 @@ public class Module {
 	@ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.ALL )
 	private Set<Quiz> quiz = new HashSet<>();
 	
-	@OneToMany(fetch = FetchType.EAGER  , cascade = CascadeType.ALL )
-	private Set<Video> videos = new HashSet<>();
-
-	
-	@OneToMany (fetch = FetchType.EAGER , cascade = CascadeType.ALL )
-	private Set<Document> document  = new HashSet<Document>();
-	
-	@OneToMany (fetch = FetchType.EAGER , cascade = CascadeType.ALL )
-	private Set<ModuleInstance> moduleInstance  = new HashSet<ModuleInstance>();
+//	@OneToMany(fetch = FetchType.EAGER  , cascade = CascadeType.ALL )
+//	private Set<Video> videos = new HashSet<>();
+//
+//	
+//	@OneToMany (fetch = FetchType.EAGER , cascade = CascadeType.ALL )
+//	private Set<Document> document  = new HashSet<Document>();
+//	
+//	@OneToMany (fetch = FetchType.EAGER , cascade = CascadeType.ALL )
+//	private Set<ModuleInstance> moduleInstance  = new HashSet<ModuleInstance>();
 	
 	
 	public Module() {
@@ -53,7 +53,7 @@ public class Module {
 	
 	
 	public Module(Long id, String nom, String duree, int nbr_questions, int level, boolean isTotalQuestions,
-			int minScore, Set<Quiz> quiz, Set<Video> videos ,  Set<Document> document  ,Set<ModuleInstance> moduleInstance) {
+			int minScore, Set<Quiz> quiz) {
 		super();
 		this.id = id;
 		this.nom = nom;
@@ -63,20 +63,20 @@ public class Module {
 		this.isTotalQuestions = isTotalQuestions;
 		this.minScore = minScore;
 		this.quiz = quiz;
-		this.videos = videos;
-		this.document = document;
-		this.moduleInstance = moduleInstance;
+//		this.videos = videos;
+//		this.document = document;
+//		this.moduleInstance = moduleInstance;
 	}
 
-
-	public Set<Video> getVideos() {
-		return videos;
-	}
-
-
-	public void setVideos(Set<Video> videos) {
-		this.videos = videos;
-	}
+//
+//	public Set<Video> getVideos() {
+//		return videos;
+//	}
+//
+//
+//	public void setVideos(Set<Video> videos) {
+//		this.videos = videos;
+//	}
 
 
 	public Long getId() {
@@ -128,26 +128,26 @@ public class Module {
 		this.minScore = minScore;
 	}
 
-
-	public Set<Document> getDocument() {
-		return document;
-	}
-
-
-	public void setDocument(Set<Document> document) {
-		this.document = document;
-	}
-
-
-	public Set<ModuleInstance> getModuleInstance() {
-		return moduleInstance;
-	}
-
-
-	public void setModuleInstance(Set<ModuleInstance> moduleInstance) {
-		this.moduleInstance = moduleInstance;
-	}
-	
+//
+//	public Set<Document> getDocument() {
+//		return document;
+//	}
+//
+//
+//	public void setDocument(Set<Document> document) {
+//		this.document = document;
+//	}
+//
+//
+//	public Set<ModuleInstance> getModuleInstance() {
+//		return moduleInstance;
+//	}
+//
+//
+//	public void setModuleInstance(Set<ModuleInstance> moduleInstance) {
+//		this.moduleInstance = moduleInstance;
+//	}
+//	
 	
 	
 	

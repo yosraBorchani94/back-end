@@ -28,8 +28,8 @@ public class ModuleInstance {
 	
 	private int score;
 
-	@OneToMany (fetch = FetchType.EAGER )
-	private Collection<QuizInstance> quizInstance = new ArrayList<>();
+//	@OneToMany (fetch = FetchType.EAGER )
+//	private Collection<QuizInstance> quizInstance = new ArrayList<>();
 
 	
 	public ModuleInstance() {
@@ -39,13 +39,13 @@ public class ModuleInstance {
 	
 
 
-	public ModuleInstance(Long id, Module module, AppUser user, int score, Collection<QuizInstance> quizInstance) {
+	public ModuleInstance(Long id, Module module, AppUser user, int scor) {
 		super();
 		this.id = id;
 		this.module = module;
 		this.user = user;
 		this.score = score;
-		this.quizInstance = quizInstance;
+		//this.quizInstance = quizInstance;
 		
 	}
 
@@ -90,12 +90,12 @@ public class ModuleInstance {
 		this.score = score;
 	}
 
-	public Collection<QuizInstance> getQuizInstance() {
-		return quizInstance;
-	}
-
-	public void setQuizInstance(Collection<QuizInstance> quizInstance) {
-		this.quizInstance = quizInstance;
-	}
+//	public Collection<QuizInstance> getQuizInstance() {
+//		return quizInstance;
+//	}
+//
+//	public void setQuizInstance(Collection<QuizInstance> quizInstance) {
+//		this.quizInstance = quizInstance;
+//	}
 
 }
